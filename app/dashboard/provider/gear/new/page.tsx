@@ -1,1 +1,1 @@
-export { default } from "@/features/provider/new-gear-page";
+export { default } from "@/features/gear/pages/create-gear-page";

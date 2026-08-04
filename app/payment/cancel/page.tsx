@@ -1,1 +1,1 @@
-export { default } from "@/features/payment/cancel-page";
+export { default } from "@/features/payment/pages/cancel-page";

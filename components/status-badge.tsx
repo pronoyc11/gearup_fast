@@ -1,9 +1,9 @@
 import { Badge } from "@/components/ui/badge";
-import { statusClass } from "@/lib/ui";
+import { getStatusClass } from "@/shared/utils/status";
 
 export function StatusBadge({ value }: { value?: string }) {
   return (
-    <Badge className={statusClass(value)}>
+    <Badge className={getStatusClass(value)}>
       {(value ?? "UNKNOWN").replaceAll("_", " ")}
     </Badge>
   );

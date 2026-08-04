@@ -1,1 +1,1 @@
-export { default } from "@/features/payment/success-page";
+export { default } from "@/features/payment/pages/success-page";

@@ -1,1 +1,1 @@
-export { default } from "@/features/provider/provider-dashboard";
+export { default } from "@/features/dashboard/pages/provider-dashboard-page";

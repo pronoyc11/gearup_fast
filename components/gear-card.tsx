@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import type { Gear } from "@/features/gear/types/gear.types";
-import { fallbackImage, money } from "@/lib/ui";
+import { fallbackGearImage } from "@/shared/utils/assets";
+import { formatMoney } from "@/shared/utils/format";
 import Image from "next/image";
 import Link from "next/link";
 import { StatusBadge } from "./status-badge";
@@ -11,7 +12,7 @@ export function GearCard({ gear }: { gear: Gear }) {
     <Link href={`/gear/${gear.id}`}>
       <div className="relative aspect-[4/3] bg-zinc-100">
         <Image
-          src={gear.image || fallbackImage}
+          src={gear.image || fallbackGearImage}
           alt={gear.title}
           fill
           sizes="(max-width: 768px) 100vw, 33vw"
@@ -28,7 +29,7 @@ export function GearCard({ gear }: { gear: Gear }) {
         </div>
         <div className="flex items-center justify-between text-sm">
           <span className="text-zinc-500">{gear.category?.name ?? "Gear"}</span>
-          <strong className="text-teal-700">{money(gear.pricePerDay)}/day</strong>
+          <strong className="text-teal-700">{formatMoney(gear.pricePerDay)}/day</strong>
         </div>
       </div>
     </Link>

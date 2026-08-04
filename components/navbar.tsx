@@ -1,14 +1,15 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { clearAuth, dashboardFor, storedUser } from "@/lib/auth";
 import { Bike, LayoutDashboard, LogIn, LogOut, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { dashboardPath, useAuthStore } from "@/stores/auth.store";
 
 export function Navbar() {
   const router = useRouter();
-  const user = storedUser();
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
 
   return (
     <header className="sticky top-0 z-30 border-b border-zinc-200 bg-white/90 backdrop-blur">
@@ -25,12 +26,12 @@ export function Navbar() {
             <>
               <Button asChild variant="ghost" className="hidden sm:inline-flex"><Link href="/account">Account</Link></Button>
               <Button asChild variant="ghost">
-                <Link href={dashboardFor(user.role)}><LayoutDashboard size={16} /> Dashboard</Link>
+                <Link href={dashboardPath(user.role)}><LayoutDashboard size={16} /> Dashboard</Link>
               </Button>
               <Button
                 variant="default"
                 onClick={() => {
-                  clearAuth();
+                  logout();
                   router.push("/");
                 }}
               >

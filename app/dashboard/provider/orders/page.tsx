@@ -1,1 +1,1 @@
-export { default } from "@/features/provider/provider-orders-page";
+export { default } from "@/features/dashboard/pages/provider-orders-page";
