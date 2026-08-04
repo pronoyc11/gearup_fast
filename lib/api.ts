@@ -13,9 +13,9 @@ import type {
   User,
   UserStatus,
 } from "./types";
+import { env } from "@/config/env";
 
-export const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL ?? "https://gearup-backend-gold.vercel.app";
+export const API_BASE = env.apiBaseUrl;
 
 export type RegisterInput = {
   name: string;

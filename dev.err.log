@@ -1,9 +1,0 @@
-$ next dev "--port" "3001"
-⨯ Another next dev server is already running.
-
-- Local:        http://localhost:3000
-- PID:          1596
-- Dir:          E:\OneDrive\Desktop\gear-up-frontend-(fast_track)\gearup-frontend
-- Log:          .next\dev\logs\next-development.log
-
-Run taskkill /PID 1596 /F to stop it.

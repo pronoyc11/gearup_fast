@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/card";
 import type { Gear } from "@/lib/types";
 import { fallbackImage, money } from "@/lib/ui";
 import Image from "next/image";
@@ -6,10 +7,8 @@ import { StatusBadge } from "./status-badge";
 
 export function GearCard({ gear }: { gear: Gear }) {
   return (
-    <Link
-      href={`/gear/${gear.id}`}
-      className="group overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-    >
+    <Card asChild className="group overflow-hidden transition hover:-translate-y-0.5 hover:shadow-md">
+    <Link href={`/gear/${gear.id}`}>
       <div className="relative aspect-[4/3] bg-zinc-100">
         <Image
           src={gear.image || fallbackImage}
@@ -33,5 +32,6 @@ export function GearCard({ gear }: { gear: Gear }) {
         </div>
       </div>
     </Link>
+    </Card>
   );
 }

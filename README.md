@@ -1,36 +1,168 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GearUp Frontend
 
-## Getting Started
+Next.js App Router frontend for the GearUp sports and outdoor gear rental API.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Next.js App Router + TypeScript
+- Tailwind CSS
+- Shadcn-style UI primitives in `components/ui`
+- TanStack Query for API/server state
+- Custom JWT auth with cookies, localStorage, and `proxy.ts` route protection
+- Stripe checkout redirect through the backend payment session endpoint
+
+## Environment
+
+The frontend API base URL is controlled from `.env`.
+
+```env
+NEXT_PUBLIC_API_URL=https://gearup-backend-gold.vercel.app
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+To use a local backend, change it to:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Then restart the frontend dev server. Next.js only reads `.env` values at server startup.
 
-## Learn More
+The runtime config is centralized in:
 
-To learn more about Next.js, take a look at the following resources:
+```text
+config/env.ts
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The API client uses that config from:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```text
+lib/api.ts
+```
 
-## Deploy on Vercel
+## Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```text
+app/                     Route files only. Thin exports to feature modules.
+features/                Page-level modules grouped by domain.
+  auth/                  Login and registration screens.
+  gear/                  Gear list and gear details/rental flow.
+  customer/              Customer dashboard and payment page.
+  provider/              Provider inventory and order management.
+  admin/                 Admin moderation and management dashboard.
+  account/               Profile update/delete.
+  payment/               Payment success/cancel pages.
+components/              Shared app components.
+components/ui/           Shadcn-style primitives: Button, Input, Card, Badge, etc.
+config/                  Environment/config values.
+lib/                     API client, auth helpers, shared types, UI helpers.
+proxy.ts                 Protected dashboard route middleware.
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Main Routes
+
+```text
+/                         Home with featured gear
+/gear                     Browse, search, and filter gear
+/gear/[id]                Gear details, reviews, rental order form
+/auth/login               Login
+/auth/register            Customer/provider registration
+/account                  Profile update/delete
+/dashboard/customer       Customer orders, payments, reviews
+/dashboard/customer/orders/[id]/pay
+/dashboard/provider       Provider inventory overview
+/dashboard/provider/gear/new
+/dashboard/provider/orders
+/dashboard/admin          User, category, gear, rental moderation
+/payment/success
+/payment/cancel
+```
+
+## Run Locally
+
+```bash
+pnpm install
+pnpm dev
+```
+
+Open:
+
+```text
+http://localhost:3000
+```
+
+Build and lint:
+
+```bash
+pnpm lint
+pnpm build
+```
+
+## Test Accounts
+
+Seeded backend password:
+
+```text
+Password123!
+```
+
+```text
+Admin:    admin@gearup.test
+Provider: ironhouse@gearup.test
+Provider: pitchperfect@gearup.test
+Provider: courtside@gearup.test
+Customer: ayesha@gearup.test
+Customer: tanvir@gearup.test
+Customer: nabila@gearup.test
+```
+
+## Manual Testing Checklist
+
+Public:
+
+- Open `/` and confirm featured gear loads.
+- Open `/gear`, test search, category, brand, price, and availability filters.
+- Open a gear details page and confirm image, price, category, stock, specifications, and reviews appear.
+
+Auth:
+
+- Register a new customer and provider from `/auth/register`.
+- Login with seeded customer/provider/admin accounts.
+- Confirm each role redirects to the correct dashboard.
+- Try opening a dashboard while logged out and confirm it redirects to `/auth/login`.
+
+Customer:
+
+- Login as a customer.
+- Create a rental from `/gear/[id]` with future dates.
+- Confirm the order appears in `/dashboard/customer`.
+- Cancel a `PLACED` order.
+- For a `CONFIRMED` order, open the pay page and confirm it attempts Stripe checkout.
+- After returned items exist, submit a review from the dashboard.
+
+Provider:
+
+- Login as a provider.
+- Add gear from `/dashboard/provider/gear/new`.
+- Confirm listed gear appears in provider inventory.
+- Open `/dashboard/provider/orders`.
+- Move valid items through available actions: `PLACED -> CONFIRMED`, `PAID -> PICKED_UP`, `PICKED_UP -> RETURNED`.
+
+Admin:
+
+- Login as admin.
+- Confirm dashboard stats load.
+- Search users.
+- Suspend and activate a user.
+- Create/delete categories.
+- Inspect gear listings and rental orders.
+
+Payments:
+
+- Payment page can only start Stripe when the parent order is `CONFIRMED`.
+- `/payment/success` and `/payment/cancel` display clear outcomes.
+
+## Notes
+
+- Backend endpoints are mapped to the actual GearUp backend routes, for example `/api/category`, `/api/rental/customer`, and `/api/payment/create-session`.
+- Auth token is stored in `localStorage` for API calls and in cookies for route protection.
+- If you change `.env`, restart `pnpm dev`.
