@@ -1,1 +1,1 @@
-export { default } from "@/features/gear/gear-list-page";
+export { default } from "@/features/gear/pages/gear-list-page";

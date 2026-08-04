@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import type { Gear } from "@/lib/types";
+import type { Gear } from "@/features/gear/types/gear.types";
 import { fallbackImage, money } from "@/lib/ui";
 import Image from "next/image";
 import Link from "next/link";
