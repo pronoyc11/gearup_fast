@@ -50,8 +50,8 @@ export function CreateGearForm() {
           <Input placeholder="Brand" {...form.register("brand")} />
           <Select {...form.register("categoryId")}><option value="">Category</option>{categories?.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</Select>
           <Select {...form.register("availability")}><option value="AVAILABLE">Available</option><option value="OUT_OF_STOCK">Out of stock</option><option value="MAINTENANCE">Maintenance</option></Select>
-          <Input type="number" min={1} placeholder="Price per day" {...form.register("pricePerDay")} />
-          <Input type="number" min={0} placeholder="Stock" {...form.register("stock")} />
+          <Input type="number" min={1} placeholder="Price per day" {...form.register("pricePerDay", { valueAsNumber: true })} />
+          <Input type="number" min={0} placeholder="Stock" {...form.register("stock", { valueAsNumber: true })} />
           <Input className="sm:col-span-2" type="url" placeholder="Image URL" {...form.register("image")} />
           <Textarea className="sm:col-span-2" placeholder="Description" {...form.register("description")} />
           <Textarea className="sm:col-span-2" placeholder="Specifications notes" {...form.register("specifications")} />

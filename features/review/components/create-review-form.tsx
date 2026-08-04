@@ -25,7 +25,7 @@ export function CreateReviewForm({ rentalOrderItemId }: Props) {
 
   return (
     <form className="mt-3 grid gap-2 sm:grid-cols-[90px_1fr_auto]" onSubmit={form.handleSubmit(onSubmit)}>
-      <Input type="number" min={1} max={5} {...form.register("rating")} />
+      <Input type="number" min={1} max={5} {...form.register("rating", { valueAsNumber: true })} />
       <Input placeholder="Review comment" {...form.register("comment")} />
       <Button disabled={createReview.isPending}>Review</Button>
     </form>

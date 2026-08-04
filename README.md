@@ -1,83 +1,202 @@
 # GearUp Frontend
 
-Next.js App Router frontend for the GearUp sports and outdoor gear rental API.
+Enterprise-style Next.js 16 App Router frontend for the GearUp sports and outdoor gear rental backend.
 
-## Stack
+## Tech Stack
 
-- Next.js App Router + TypeScript
+- Next.js 16 App Router
+- TypeScript
 - Tailwind CSS
-- Shadcn-style UI primitives in `components/ui`
-- TanStack Query for API/server state
-- Custom JWT auth with cookies, localStorage, and `proxy.ts` route protection
-- Stripe checkout redirect through the backend payment session endpoint
+- shadcn/ui-style components
+- TanStack Query v5
+- Zustand
+- React Hook Form
+- Zod
+- Axios
 
-## Environment
+## Architecture Rule
 
-The frontend API base URL is controlled from `.env`.
+The project uses feature-based architecture.
+
+```text
+features/
+  auth/
+    api/
+    components/
+    hooks/
+    pages/
+    schemas/
+    types/
+    utils/
+  gear/
+  rental/
+  payment/
+  review/
+  dashboard/
+  account/
+  category/
+  home/
+```
+
+Implementation flow:
+
+```text
+types -> schemas -> api -> hooks -> components -> pages -> app route
+```
+
+Pages never call Axios directly. Components never call Axios directly.
+
+## Important Folders
+
+```text
+app/
+  (public)/             Public routes
+  (auth)/               Login/register routes
+  (protected)/          Dashboard/account routes
+
+shared/
+  api/axios.ts          Axios instance and interceptors
+  api/response.ts       Response unwrapping helpers
+  config/env.ts         Environment config
+  types/                Shared infrastructure types
+  utils/                Pure reusable utilities
+
+stores/
+  auth.store.ts         Zustand auth store only
+
+components/ui/          shadcn/ui-style primitives
+components/             Shared reusable app components
+```
+
+## API Flow
+
+Example for gear:
+
+```text
+features/gear/types/gear.types.ts
+features/gear/schemas/gear.schemas.ts
+features/gear/api/gear.api.ts
+features/gear/hooks/use-gears.ts
+features/gear/components/gear-grid.tsx
+features/gear/pages/gear-list-page.tsx
+app/(public)/gear/page.tsx
+```
+
+Axios lives only in:
+
+```text
+shared/api/axios.ts
+```
+
+Feature API files call Axios:
+
+```text
+features/*/api/*.api.ts
+```
+
+React Query hooks call feature APIs:
+
+```text
+features/*/hooks/*
+```
+
+UI components call hooks, not Axios.
+
+## State Management
+
+Server state:
+
+```text
+TanStack Query
+```
+
+Examples:
+
+- gear list
+- rental orders
+- payments
+- admin users
+- categories
+
+Global client state:
+
+```text
+Zustand
+```
+
+Currently used for:
+
+- auth token
+- logged-in user
+- logout
+- auth hydration
+
+Form state:
+
+```text
+React Hook Form
+```
+
+Validation:
+
+```text
+Zod schemas inside feature schemas folders
+```
+
+## Environment / Base URL
+
+Control the backend URL from `.env`:
 
 ```env
 NEXT_PUBLIC_API_URL=https://gearup-backend-gold.vercel.app
 ```
 
-To use a local backend, change it to:
+For local backend:
 
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5000
 ```
 
-Then restart the frontend dev server. Next.js only reads `.env` values at server startup.
+Restart the dev server after changing `.env`.
 
-The runtime config is centralized in:
-
-```text
-config/env.ts
-```
-
-The API client uses that config from:
+The value is read here:
 
 ```text
-lib/api.ts
+shared/config/env.ts
 ```
 
-## Project Structure
+Then used by Axios here:
 
 ```text
-app/                     Route files only. Thin exports to feature modules.
-features/                Page-level modules grouped by domain.
-  auth/                  Login and registration screens.
-  gear/                  Gear list and gear details/rental flow.
-  customer/              Customer dashboard and payment page.
-  provider/              Provider inventory and order management.
-  admin/                 Admin moderation and management dashboard.
-  account/               Profile update/delete.
-  payment/               Payment success/cancel pages.
-components/              Shared app components.
-components/ui/           Shadcn-style primitives: Button, Input, Card, Badge, etc.
-config/                  Environment/config values.
-lib/                     API client, auth helpers, shared types, UI helpers.
-proxy.ts                 Protected dashboard route middleware.
+shared/api/axios.ts
 ```
 
-## Main Routes
+## Routes
 
 ```text
-/                         Home with featured gear
-/gear                     Browse, search, and filter gear
-/gear/[id]                Gear details, reviews, rental order form
-/auth/login               Login
-/auth/register            Customer/provider registration
-/account                  Profile update/delete
-/dashboard/customer       Customer orders, payments, reviews
-/dashboard/customer/orders/[id]/pay
-/dashboard/provider       Provider inventory overview
-/dashboard/provider/gear/new
-/dashboard/provider/orders
-/dashboard/admin          User, category, gear, rental moderation
-/payment/success
-/payment/cancel
+/                                      Home
+/gear                                  Browse gear
+/gear/[id]                             Gear details and rental form
+/auth/login                            Login
+/auth/register                         Register
+/account                               Profile
+/dashboard/customer                    Customer dashboard
+/dashboard/customer/orders/[id]/pay    Stripe checkout start
+/dashboard/provider                    Provider dashboard
+/dashboard/provider/gear/new           Create gear
+/dashboard/provider/orders             Provider order actions
+/dashboard/admin                       Admin dashboard
+/payment/success                       Payment success UI
+/payment/cancel                        Payment cancel UI
 ```
 
-## Run Locally
+Protected routes are controlled by:
+
+```text
+proxy.ts
+```
+
+## Run
 
 ```bash
 pnpm install
@@ -90,16 +209,18 @@ Open:
 http://localhost:3000
 ```
 
-Build and lint:
+## Verify
 
 ```bash
 pnpm lint
 pnpm build
 ```
 
-## Test Accounts
+Both should pass.
 
-Seeded backend password:
+## Seed Accounts
+
+Password:
 
 ```text
 Password123!
@@ -115,54 +236,86 @@ Customer: tanvir@gearup.test
 Customer: nabila@gearup.test
 ```
 
-## Manual Testing Checklist
+## Testing Checklist
 
 Public:
 
-- Open `/` and confirm featured gear loads.
-- Open `/gear`, test search, category, brand, price, and availability filters.
-- Open a gear details page and confirm image, price, category, stock, specifications, and reviews appear.
+- Visit `/`.
+- Confirm featured gear loads.
+- Visit `/gear`.
+- Test search, category, brand, price, and availability filters.
+- Open `/gear/[id]`.
+- Confirm image, price, stock, category, reviews, and rental form.
 
 Auth:
 
-- Register a new customer and provider from `/auth/register`.
-- Login with seeded customer/provider/admin accounts.
-- Confirm each role redirects to the correct dashboard.
-- Try opening a dashboard while logged out and confirm it redirects to `/auth/login`.
+- Register as customer.
+- Register as provider.
+- Login as customer/provider/admin.
+- Confirm each role lands on the correct dashboard.
+- Logout.
+- Try opening `/dashboard/customer` logged out and confirm redirect to login.
 
 Customer:
 
-- Login as a customer.
-- Create a rental from `/gear/[id]` with future dates.
-- Confirm the order appears in `/dashboard/customer`.
+- Login as customer.
+- Create a rental from a gear details page using future dates.
+- Confirm order appears in `/dashboard/customer`.
 - Cancel a `PLACED` order.
-- For a `CONFIRMED` order, open the pay page and confirm it attempts Stripe checkout.
-- After returned items exist, submit a review from the dashboard.
+- If order is `CONFIRMED`, open pay page and verify Stripe redirect starts.
+- Submit review for returned items.
 
 Provider:
 
-- Login as a provider.
-- Add gear from `/dashboard/provider/gear/new`.
-- Confirm listed gear appears in provider inventory.
+- Login as provider.
+- Create gear from `/dashboard/provider/gear/new`.
+- Confirm it appears in provider inventory.
 - Open `/dashboard/provider/orders`.
-- Move valid items through available actions: `PLACED -> CONFIRMED`, `PAID -> PICKED_UP`, `PICKED_UP -> RETURNED`.
+- Move valid order items through available transitions.
 
 Admin:
 
 - Login as admin.
-- Confirm dashboard stats load.
+- Check dashboard stats.
 - Search users.
-- Suspend and activate a user.
-- Create/delete categories.
-- Inspect gear listings and rental orders.
+- Suspend and activate users.
+- Create and delete categories.
+- Inspect gear and rental moderation panels.
 
-Payments:
+Payment:
 
-- Payment page can only start Stripe when the parent order is `CONFIRMED`.
-- `/payment/success` and `/payment/cancel` display clear outcomes.
+- Confirm checkout button is disabled unless order is `CONFIRMED`.
+- Visit `/payment/success`.
+- Visit `/payment/cancel`.
 
-## Notes
+## Mental Model
 
-- Backend endpoints are mapped to the actual GearUp backend routes, for example `/api/category`, `/api/rental/customer`, and `/api/payment/create-session`.
-- Auth token is stored in `localStorage` for API calls and in cookies for route protection.
-- If you change `.env`, restart `pnpm dev`.
+When you want to change a feature, follow this path:
+
+```text
+1. types
+2. schemas
+3. api
+4. hooks
+5. components
+6. pages
+7. route export
+```
+
+Example: changing login validation means edit:
+
+```text
+features/auth/schemas/auth.schemas.ts
+```
+
+Changing login API route means edit:
+
+```text
+features/auth/api/auth.api.ts
+```
+
+Changing login UI means edit:
+
+```text
+features/auth/components/login-form.tsx
+```

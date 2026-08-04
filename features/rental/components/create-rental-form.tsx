@@ -43,7 +43,7 @@ export function CreateRentalForm({ gearId, maxQuantity, disabled }: Props) {
         <div className="grid gap-3 sm:grid-cols-3">
           <Input type="date" min={new Date().toISOString().slice(0, 10)} {...form.register("startDate")} />
           <Input type="date" min={new Date().toISOString().slice(0, 10)} {...form.register("endDate")} />
-          <Input type="number" min={1} max={maxQuantity} {...form.register("quantity")} />
+          <Input type="number" min={1} max={maxQuantity} {...form.register("quantity", { valueAsNumber: true })} />
         </div>
         <div className="text-sm font-semibold text-red-700">
           {Object.values(form.formState.errors)[0]?.message ?? createRental.error?.message}

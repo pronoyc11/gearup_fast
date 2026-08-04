@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CreateReviewForm } from "@/features/review/components/create-review-form";
 import type { RentalOrder } from "@/features/rental/types/rental.types";
-import { money } from "@/lib/ui";
+import { formatMoney } from "@/shared/utils/format";
 
 type Props = {
   orders?: RentalOrder[];
@@ -24,7 +24,7 @@ export function CustomerOrders({ orders, onCancel, isCancelling }: Props) {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="font-bold">Order #{order.id.slice(0, 8)}</p>
-                <p className="text-sm text-zinc-500">{order.startDate.slice(0, 10)} to {order.endDate.slice(0, 10)} · {money(order.totalAmount)}</p>
+                <p className="text-sm text-zinc-500">{order.startDate.slice(0, 10)} to {order.endDate.slice(0, 10)} · {formatMoney(order.totalAmount)}</p>
               </div>
               <div className="flex flex-wrap gap-2">
                 <StatusBadge value={order.status} />

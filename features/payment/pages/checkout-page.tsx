@@ -7,7 +7,7 @@ import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useCustomerRental } from "@/features/rental/hooks/use-rentals";
-import { money } from "@/lib/ui";
+import { formatMoney } from "@/shared/utils/format";
 import { useCreateCheckoutSession } from "../hooks/use-payments";
 
 export default function CheckoutPage() {
@@ -37,7 +37,7 @@ export default function CheckoutPage() {
         <div className="rounded-md bg-zinc-50 p-4">
           <p className="text-sm text-zinc-500">Order</p>
           <p className="font-bold">#{id.slice(0, 8)}</p>
-          <div className="mt-3 flex items-center justify-between"><StatusBadge value={order?.status} /><strong>{money(order?.totalAmount)}</strong></div>
+          <div className="mt-3 flex items-center justify-between"><StatusBadge value={order?.status} /><strong>{formatMoney(order?.totalAmount)}</strong></div>
         </div>
         {error ? <p className="text-sm font-semibold text-red-700">{error}</p> : null}
         <Button className="w-full" disabled={createSession.isPending || order?.status !== "CONFIRMED"} onClick={handleCheckout}>
