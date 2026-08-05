@@ -6,8 +6,8 @@ import { GearGrid } from "@/features/gear/components/gear-grid";
 import { useGears } from "@/features/gear/hooks/use-gears";
 
 export function FeaturedGear() {
-  const { data, isLoading } = useGears({ availability: "AVAILABLE", limit: 6, sortBy: "createdAt", sortOrder: "desc" });
-
+  const { data, isLoading,error } = useGears({ availability: "AVAILABLE", limit: 6, sortBy: "createdAt", sortOrder: "desc" });
+  console.log(error);
   return (
     <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
       <div className="mb-6 flex items-center justify-between gap-4">
