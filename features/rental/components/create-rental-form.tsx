@@ -43,7 +43,7 @@ export function CreateRentalForm({ gearId, maxQuantity, disabled }: Props) {
       });
       showToast({
         title: "Rental order created",
-        description: "You can pay only after every provider confirms the order.",
+        description: "You can pay as soon as the provider confirms the item.",
         variant: "success",
       });
       router.push("/dashboard/customer");

@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +16,7 @@ type Props = {
 export function CreateReviewForm({ rentalOrderItemId }: Props) {
   const createReview = useCreateReview();
   const showToast = useToastStore((state) => state.showToast);
+  const [submitted, setSubmitted] = useState(false);
   const form = useForm<ReviewFormValues>({
     resolver: zodResolver(reviewSchema),
     defaultValues: { rating: 5, comment: "" },
@@ -23,11 +25,16 @@ export function CreateReviewForm({ rentalOrderItemId }: Props) {
   async function onSubmit(values: ReviewFormValues) {
     try {
       await createReview.mutateAsync({ rentalOrderItemId, ...values });
+      setSubmitted(true);
       showToast({ title: "Review submitted", variant: "success" });
       form.reset();
     } catch (error) {
       showToast({ title: "Could not submit review", description: error instanceof Error ? error.message : "Please try again.", variant: "error" });
     }
+  }
+
+  if (submitted) {
+    return <p className="mt-3 text-sm font-semibold text-emerald-700">Review submitted.</p>;
   }
 
   return (

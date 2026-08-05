@@ -6,12 +6,14 @@ export type Payment = {
   status: PaymentStatus;
   provider?: "STRIPE" | "SSLCOMMERZ";
   rentalOrderId?: string;
+  rentalOrderItemId?: string;
   paidAt?: string;
   createdAt?: string;
 };
 
-export type CheckoutSession = {
-  id?: string;
-  url?: string;
-  sessionUrl?: string;
+export type CheckoutSession = string;
+
+export type CreateCheckoutSessionPayload = {
+  rentalOrderId: string;
+  rentalOrderItemId?: string;
 };

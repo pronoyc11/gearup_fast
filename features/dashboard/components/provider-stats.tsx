@@ -1,10 +1,10 @@
 import { Card } from "@/components/ui/card";
 import type { Gear } from "@/features/gear/types/gear.types";
-import type { RentalItem } from "@/features/rental/types/rental.types";
+import type { ProviderRentalItem } from "@/features/rental/types/rental.types";
 
 type Props = {
   gears: Gear[];
-  rentalItems: RentalItem[];
+  rentalItems: ProviderRentalItem[];
 };
 
 export function ProviderStats({ gears, rentalItems }: Props) {

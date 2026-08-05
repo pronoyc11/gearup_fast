@@ -18,6 +18,7 @@ export function useCreateReview() {
     mutationFn: reviewApi.createReview,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["customer-rentals"] });
+      queryClient.invalidateQueries({ queryKey: ["customer-rental"] });
       queryClient.invalidateQueries({ queryKey: ["reviews"] });
     },
   });

@@ -19,7 +19,8 @@ export type RentalItem = {
   gearId: string;
   providerId?: string;
   quantity: number;
-  subtotal?: number;
+  pricePerDay?: number | string;
+  subtotal?: number | string;
   status: RentalStatus;
   gear?: Gear;
   review?: Review;
@@ -30,10 +31,26 @@ export type RentalOrder = {
   startDate: string;
   endDate: string;
   status: RentalStatus;
-  totalAmount?: number;
+  totalAmount?: number | string;
   items: RentalItem[];
   customer?: User;
   createdAt?: string;
+};
+
+export type ProviderRentalItem = RentalItem & {
+  rentalOrderId: string;
+  rentalOrder: RentalOrder & {
+    customerId?: string;
+    payment?: {
+      id: string;
+      amount?: number | string;
+      provider?: string;
+      status?: string;
+      paidAt?: string;
+    } | null;
+  };
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type CreateRentalPayload = {

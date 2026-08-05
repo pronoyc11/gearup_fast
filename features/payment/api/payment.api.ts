@@ -1,8 +1,8 @@
 import { apiClient } from "@/shared/api/axios";
-import type { CheckoutSession, Payment } from "../types/payment.types";
+import type { CheckoutSession, CreateCheckoutSessionPayload, Payment } from "../types/payment.types";
 
 export const paymentApi = {
-  createCheckoutSession: (rentalOrderId: string) =>
-    apiClient.post<unknown, CheckoutSession>("/api/payment/create-session", { rentalOrderId }),
+  createCheckoutSession: (payload: CreateCheckoutSessionPayload) =>
+    apiClient.post<unknown, CheckoutSession>("/api/payment/create-session", payload),
   getPayments: () => apiClient.get<unknown, Payment[]>("/api/payment"),
 };

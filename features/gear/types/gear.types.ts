@@ -8,7 +8,7 @@ export type Gear = {
   title: string;
   description: string;
   brand: string;
-  pricePerDay: number;
+  pricePerDay: number | string;
   stock: number;
   availability: GearAvailability;
   image?: string;

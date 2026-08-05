@@ -4,11 +4,13 @@ import Image from "next/image";
 import { useParams } from "next/navigation";
 import { StatusBadge } from "@/components/status-badge";
 import { Card } from "@/components/ui/card";
+import { AddToCartButton } from "@/features/cart/components/add-to-cart-button";
 import { CreateRentalForm } from "@/features/rental/components/create-rental-form";
 import { ReviewList } from "@/features/review/components/review-list";
 import { fallbackGearImage } from "@/shared/utils/assets";
 import { formatMoney } from "@/shared/utils/format";
 import { useGear } from "../hooks/use-gear";
+import { ProviderInfoCard } from "../components/provider-info-card";
 
 export default function GearDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -35,6 +37,8 @@ export default function GearDetailsPage() {
             <Card className="p-4"><p className="text-zinc-500">Stock</p><strong>{gear.stock}</strong></Card>
             <Card className="p-4"><p className="text-zinc-500">Category</p><strong>{gear.category?.name ?? "Gear"}</strong></Card>
           </div>
+          <ProviderInfoCard gear={gear} />
+          <AddToCartButton gear={gear} />
           <CreateRentalForm gearId={gear.id} maxQuantity={gear.stock} disabled={gear.availability !== "AVAILABLE"} />
         </section>
       </div>

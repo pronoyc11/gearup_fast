@@ -11,8 +11,7 @@ export default function ProviderOrdersPage() {
   const { data, isLoading } = useProviderRentals();
   const updateItem = useUpdateRentalItem();
   const showToast = useToastStore((state) => state.showToast);
-  const orders = toArray(data);
-
+  const rentalItems = toArray(data);
   function handleUpdate(itemId: string, status: RentalStatus) {
     updateItem.mutate(
       { itemId, status },
@@ -31,7 +30,7 @@ export default function ProviderOrdersPage() {
       </header>
       {updateItem.error ? <div className="panel p-4 text-sm font-semibold text-red-700">{updateItem.error.message}</div> : null}
       {isLoading ? <div className="panel p-5">Loading orders...</div> : (
-        <ProviderOrdersTable orders={orders} isUpdating={updateItem.isPending} onUpdate={handleUpdate} />
+        <ProviderOrdersTable items={rentalItems} isUpdating={updateItem.isPending} onUpdate={handleUpdate} />
       )}
     </main>
   );

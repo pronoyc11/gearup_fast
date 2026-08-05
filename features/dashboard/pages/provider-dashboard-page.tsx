@@ -13,7 +13,7 @@ export default function ProviderDashboardPage() {
   const { data: gear } = useGears({ limit: 100 });
   const { data: rentals } = useProviderRentals();
   const gears = toArray(gear);
-  const rentalItems = toArray(rentals).flatMap((order) => order.items ?? []);
+  const rentalItems = toArray(rentals);
 
   return (
     <main className="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6">

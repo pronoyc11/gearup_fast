@@ -53,6 +53,14 @@ export function CustomerOrders({ orders, onCancel, isCancelling }: Props) {
                     <span className="font-semibold">{item.gear?.title ?? item.gearId}</span>
                     <StatusBadge value={item.status} />
                   </div>
+                  <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+                    <span className="text-sm text-zinc-500">{formatMoney(item.subtotal)}</span>
+                    {item.status === "CONFIRMED" ? (
+                      <Button asChild size="sm">
+                        <Link href={`/dashboard/customer/orders/${order.id}/pay?itemId=${item.id}`}>Pay Item</Link>
+                      </Button>
+                    ) : null}
+                  </div>
                   {["RETURNED", "LATE_RETURN"].includes(item.status) && !item.review ? (
                     <CreateReviewForm rentalOrderItemId={item.id} />
                   ) : null}

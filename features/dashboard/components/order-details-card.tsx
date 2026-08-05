@@ -47,7 +47,7 @@ export function OrderDetailsCard({ order }: Props) {
           </Button>
         ) : (
           <p className="mt-5 text-sm font-semibold text-amber-700 dark:text-amber-300">
-            Payment becomes available only after every provider confirms the order.
+            You can pay each confirmed item separately. Full-order payment becomes available after every provider confirms the order.
           </p>
         )}
       </Card>
@@ -57,7 +57,9 @@ export function OrderDetailsCard({ order }: Props) {
           <Card key={item.id} className="p-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <h2 className="text-xl font-black">{item.gear?.title ?? item.gearId}</h2>
+                <Link className="text-xl font-black hover:text-teal-700" href={`/gear/${item.gearId}`}>
+                  {item.gear?.title ?? item.gearId}
+                </Link>
                 <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
                   Quantity {item.quantity} | Subtotal {formatMoney(item.subtotal)}
                 </p>
@@ -83,6 +85,12 @@ export function OrderDetailsCard({ order }: Props) {
                 <strong>{item.gear?.category?.name ?? "Not available"}</strong>
               </div>
             </div>
+
+            {item.status === "CONFIRMED" ? (
+              <Button asChild className="mt-5">
+                <Link href={`/dashboard/customer/orders/${order.id}/pay?itemId=${item.id}`}>Pay This Item</Link>
+              </Button>
+            ) : null}
           </Card>
         ))}
       </section>

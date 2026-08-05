@@ -2,15 +2,17 @@
 
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Bike, LayoutDashboard, LogIn, LogOut, UserRound } from "lucide-react";
+import { Bike, LayoutDashboard, LogIn, LogOut, ShoppingCart, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { dashboardPath, useAuthStore } from "@/stores/auth.store";
+import { useCartStore } from "@/stores/cart.store";
 
 export function Navbar() {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
+  const cartCount = useCartStore((state) => state.items.length);
 
   return (
     <header className="sticky top-0 z-30 border-b border-zinc-200 bg-white/90 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/90">
@@ -24,6 +26,9 @@ export function Navbar() {
         <nav className="flex items-center gap-2 text-sm font-semibold text-zinc-700 dark:text-zinc-200">
           <Button asChild variant="ghost"><Link href="/gear">Gear</Link></Button>
           <Button asChild variant="ghost" className="hidden sm:inline-flex"><Link href="/about">About</Link></Button>
+          <Button asChild variant="ghost">
+            <Link href="/cart"><ShoppingCart size={16} /> Cart{cartCount ? ` (${cartCount})` : ""}</Link>
+          </Button>
           <ThemeToggle />
           {user ? (
             <>
