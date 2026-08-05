@@ -15,17 +15,17 @@ export function AddToCartButton({ gear }: Props) {
   const addGear = useCartStore((state) => state.addGear);
   const showToast = useToastStore((state) => state.showToast);
   const user = useAuthStore((state) => state.user);
-  const isAdmin = user?.role === "ADMIN";
+  const cannotCreateRental = user?.role === "ADMIN" || user?.role === "PROVIDER";
 
   return (
     <Button
       type="button"
       variant="secondary"
       className="w-full"
-      disabled={isAdmin || gear.availability !== "AVAILABLE" || gear.stock <= 0}
+      disabled={cannotCreateRental || gear.availability !== "AVAILABLE" || gear.stock <= 0}
       onClick={() => {
-        if (isAdmin) {
-          showToast({ title: "Admin action unavailable", description: "Admins can inspect gear, but they cannot create rentals.", variant: "info" });
+        if (cannotCreateRental) {
+          showToast({ title: "Action unavailable", description: "Only customers can create rental orders.", variant: "info" });
           return;
         }
 
@@ -33,7 +33,7 @@ export function AddToCartButton({ gear }: Props) {
         showToast({ title: "Added to cart", description: gear.title, variant: "success" });
       }}
     >
-      <ShoppingCart size={18} /> {isAdmin ? "Unavailable for Admins" : "Add to Cart"}
+      <ShoppingCart size={18} /> {cannotCreateRental ? "Customers Only" : "Add to Cart"}
     </Button>
   );
 }

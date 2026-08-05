@@ -41,6 +41,8 @@ export type GearPayload = {
   pricePerDay: number;
   stock: number;
   availability: GearAvailability;
-  image?: string;
+  image: string;
   specifications?: Record<string, unknown>;
 };
+
+export type GearUpdatePayload = Partial<GearPayload>;

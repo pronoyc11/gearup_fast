@@ -3,16 +3,18 @@
 import { ClipboardList, PackagePlus } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { GearGrid } from "@/features/gear/components/gear-grid";
 import { useGears } from "@/features/gear/hooks/use-gears";
 import { useProviderRentals } from "@/features/rental/hooks/use-rentals";
 import { toArray } from "@/shared/api/response";
+import { useAuthStore } from "@/stores/auth.store";
+import { ProviderInventoryManager } from "../components/provider-inventory-manager";
 import { ProviderStats } from "../components/provider-stats";
 
 export default function ProviderDashboardPage() {
+  const user = useAuthStore((state) => state.user);
   const { data: gear } = useGears({ limit: 100 });
   const { data: rentals } = useProviderRentals();
-  const gears = toArray(gear);
+  const gears = toArray(gear).filter((item) => item.providerId === user?.id || item.provider?.id === user?.id);
   const rentalItems = toArray(rentals);
 
   return (
@@ -27,7 +29,7 @@ export default function ProviderDashboardPage() {
       <ProviderStats gears={gears} rentalItems={rentalItems} />
       <section>
         <h2 className="mb-4 text-xl font-black">Inventory</h2>
-        <GearGrid gears={gears} />
+        <ProviderInventoryManager gears={gears} />
       </section>
     </main>
   );

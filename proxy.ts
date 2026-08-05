@@ -6,6 +6,19 @@ const roleHome = {
   CUSTOMER: "/dashboard/customer",
 };
 
+const publicPaths = new Set([
+  "/",
+  "/about",
+  "/auth/login",
+  "/auth/register",
+  "/payment/success",
+  "/payment/cancel",
+]);
+
+function isPublicPath(path: string) {
+  return publicPaths.has(path) || path === "/gear" || path.startsWith("/gear/");
+}
+
 export function proxy(request: NextRequest) {
   const token = request.cookies.get("gearup_token")?.value;
   const role = request.cookies.get("gearup_role")?.value as keyof typeof roleHome | undefined;
@@ -15,8 +28,16 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(roleHome[role ?? "CUSTOMER"], request.url));
   }
 
-  if (path.startsWith("/dashboard") && !token) {
+  if (!token && !isPublicPath(path)) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
+  }
+
+  if (!token) {
+    return NextResponse.next();
+  }
+
+  if (path === "/cart" && role !== "CUSTOMER") {
+    return NextResponse.redirect(new URL(roleHome[role ?? "CUSTOMER"], request.url));
   }
 
   if (path.startsWith("/dashboard/admin") && role !== "ADMIN") {
@@ -33,5 +54,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/auth/login", "/auth/register"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)"],
 };

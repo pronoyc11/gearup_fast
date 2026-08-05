@@ -23,7 +23,7 @@ export function CreateRentalForm({ gearId, maxQuantity, disabled }: Props) {
   const user = useAuthStore((state) => state.user);
   const showToast = useToastStore((state) => state.showToast);
   const createRental = useCreateRental();
-  const isAdmin = user?.role === "ADMIN";
+  const cannotCreateRental = user?.role === "ADMIN" || user?.role === "PROVIDER";
   const form = useForm<CreateRentalFormValues>({
     resolver: zodResolver(createRentalSchema),
     defaultValues: { startDate: "", endDate: "", quantity: 1 },
@@ -36,8 +36,8 @@ export function CreateRentalForm({ gearId, maxQuantity, disabled }: Props) {
       return;
     }
 
-    if (isAdmin) {
-      showToast({ title: "Admin action unavailable", description: "Admins can inspect rentals, but they cannot create customer rental orders.", variant: "info" });
+    if (cannotCreateRental) {
+      showToast({ title: "Action unavailable", description: "Only customers can create rental orders.", variant: "info" });
       return;
     }
 
@@ -72,11 +72,11 @@ export function CreateRentalForm({ gearId, maxQuantity, disabled }: Props) {
         <div className="text-sm font-semibold text-red-700">
           {Object.values(form.formState.errors)[0]?.message ?? createRental.error?.message}
         </div>
-        {isAdmin ? (
-          <p className="text-sm font-semibold text-amber-700">Admins cannot create rental orders.</p>
+        {cannotCreateRental ? (
+          <p className="text-sm font-semibold text-amber-700">Only customers can create rental orders.</p>
         ) : null}
-        <Button className="w-full" disabled={disabled || createRental.isPending || isAdmin}>
-          {isAdmin ? "Unavailable for Admins" : createRental.isPending ? "Creating order..." : "Create Rental Order"}
+        <Button className="w-full" disabled={disabled || createRental.isPending || cannotCreateRental}>
+          {cannotCreateRental ? "Customers Only" : createRental.isPending ? "Creating order..." : "Create Rental Order"}
         </Button>
       </form>
     </Card>

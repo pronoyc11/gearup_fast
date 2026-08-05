@@ -99,7 +99,7 @@ export function CreateGearForm() {
     try {
       await createGear.mutateAsync({
         ...values,
-        image: values.image || undefined,
+        image: values.image,
         specifications: values.specifications ? { notes: values.specifications } : undefined,
       });
       showToast({ title: "Gear created", description: "Your inventory has been updated.", variant: "success" });
@@ -118,7 +118,9 @@ export function CreateGearForm() {
           <Input placeholder="Brand" {...form.register("brand")} />
           <Select {...form.register("categoryId")}><option value="">Category</option>{categories?.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</Select>
           <Select {...form.register("availability")}><option value="AVAILABLE">Available</option><option value="OUT_OF_STOCK">Out of stock</option><option value="MAINTENANCE">Maintenance</option></Select>
+          <span>Price per day</span>
           <Input type="number" min={1} placeholder="Price per day" {...form.register("pricePerDay", { valueAsNumber: true })} />
+          <span>Stock</span>
           <Input type="number" min={0} placeholder="Stock" {...form.register("stock", { valueAsNumber: true })} />
           <div className="space-y-3 sm:col-span-2">
             <label className="grid cursor-pointer gap-3 rounded-md border border-dashed border-zinc-300 bg-zinc-50 p-4 text-center transition hover:border-teal-600 dark:border-zinc-700 dark:bg-zinc-900">

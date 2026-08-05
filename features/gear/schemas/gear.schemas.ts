@@ -17,7 +17,7 @@ export const gearSchema = z.object({
   pricePerDay: z.number().min(1, "Price must be greater than 0."),
   stock: z.number().min(0, "Stock cannot be negative."),
   availability: z.enum(["AVAILABLE", "OUT_OF_STOCK", "MAINTENANCE"]),
-  image: z.string().url("Enter a valid image URL.").optional().or(z.literal("")),
+  image: z.string().min(1, "Product image is required.").url("Upload a valid product image."),
   specifications: z.string().optional(),
 });
 
