@@ -53,46 +53,69 @@ export function OrderDetailsCard({ order }: Props) {
       </Card>
 
       <section className="grid gap-4">
-        {order.items.map((item) => (
-          <Card key={item.id} className="p-5">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <Link className="text-xl font-black hover:text-teal-700" href={`/gear/${item.gearId}`}>
-                  {item.gear?.title ?? item.gearId}
-                </Link>
-                <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-                  Quantity {item.quantity} | Subtotal {formatMoney(item.subtotal)}
-                </p>
-              </div>
-              <StatusBadge value={item.status} />
-            </div>
+        {order.items.map((item) => {
+          const providerName = item.provider?.name ?? item.gear?.provider?.name ?? item.providerId ?? item.gear?.providerId ?? "Not available";
+          const providerEmail = item.provider?.email ?? item.gear?.provider?.email ?? item.providerEmail;
 
-            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <div>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400">Brand</p>
-                <strong>{item.gear?.brand ?? "Not available"}</strong>
+          return (
+            <Card key={item.id} className="p-5">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <Link className="text-xl font-black hover:text-teal-700" href={`/gear/${item.gearId}`}>
+                    {item.gear?.title ?? item.gearId}
+                  </Link>
+                  <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                    Quantity {item.quantity} | Subtotal {formatMoney(item.subtotal)}
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+                    Provider Email:{" "}
+                    {providerEmail ? (
+                      <a className="text-teal-700 hover:underline dark:text-teal-300" href={`mailto:${providerEmail}`}>
+                        {providerEmail}
+                      </a>
+                    ) : (
+                      "Not available"
+                    )}
+                  </p>
+                </div>
+                <StatusBadge value={item.status} />
               </div>
-              <div>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400">Provider</p>
-                <strong>{item.gear?.provider?.name ?? item.providerId ?? item.gear?.providerId ?? "Not available"}</strong>
-              </div>
-              <div>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400">Provider Email</p>
-                <strong>{item.gear?.provider?.email ?? "Not available"}</strong>
-              </div>
-              <div>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400">Category</p>
-                <strong>{item.gear?.category?.name ?? "Not available"}</strong>
-              </div>
-            </div>
 
-            {item.status === "CONFIRMED" ? (
-              <Button asChild className="mt-5">
-                <Link href={`/dashboard/customer/orders/${order.id}/pay?itemId=${item.id}`}>Pay This Item</Link>
-              </Button>
-            ) : null}
-          </Card>
-        ))}
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div>
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400">Brand</p>
+                  <strong>{item.gear?.brand ?? "Not available"}</strong>
+                </div>
+                <div>
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400">Provider</p>
+                  <strong>{providerName}</strong>
+                </div>
+                <div>
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400">Provider Email</p>
+                  <strong>
+                    {providerEmail ? (
+                      <a className="text-teal-700 hover:underline dark:text-teal-300" href={`mailto:${providerEmail}`}>
+                        {providerEmail}
+                      </a>
+                    ) : (
+                      "Not available"
+                    )}
+                  </strong>
+                </div>
+                <div>
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400">Category</p>
+                  <strong>{item.gear?.category?.name ?? "Not available"}</strong>
+                </div>
+              </div>
+
+              {item.status === "CONFIRMED" ? (
+                <Button asChild className="mt-5">
+                  <Link href={`/dashboard/customer/orders/${order.id}/pay?itemId=${item.id}`}>Pay This Item</Link>
+                </Button>
+              ) : null}
+            </Card>
+          );
+        })}
       </section>
     </div>
   );

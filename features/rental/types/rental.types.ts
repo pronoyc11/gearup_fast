@@ -18,6 +18,8 @@ export type RentalItem = {
   id: string;
   gearId: string;
   providerId?: string;
+  provider?: User;
+  providerEmail?: string;
   quantity: number;
   pricePerDay?: number | string;
   subtotal?: number | string;
