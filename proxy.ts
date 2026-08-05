@@ -22,11 +22,11 @@ export function proxy(request: NextRequest) {
   if (path.startsWith("/dashboard/admin") && role !== "ADMIN") {
     return NextResponse.redirect(new URL(roleHome[role ?? "CUSTOMER"], request.url));
   }
-  if (path.startsWith("/dashboard/provider") && role !== "PROVIDER" && role !== "ADMIN") {
+  if (path.startsWith("/dashboard/provider") && role !== "PROVIDER") {
     return NextResponse.redirect(new URL(roleHome[role ?? "CUSTOMER"], request.url));
   }
-  if (path.startsWith("/dashboard/customer") && role === "PROVIDER") {
-    return NextResponse.redirect(new URL("/dashboard/provider", request.url));
+  if (path.startsWith("/dashboard/customer") && role !== "CUSTOMER") {
+    return NextResponse.redirect(new URL(roleHome[role ?? "CUSTOMER"], request.url));
   }
 
   return NextResponse.next();

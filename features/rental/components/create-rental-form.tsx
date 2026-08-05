@@ -23,6 +23,7 @@ export function CreateRentalForm({ gearId, maxQuantity, disabled }: Props) {
   const user = useAuthStore((state) => state.user);
   const showToast = useToastStore((state) => state.showToast);
   const createRental = useCreateRental();
+  const isAdmin = user?.role === "ADMIN";
   const form = useForm<CreateRentalFormValues>({
     resolver: zodResolver(createRentalSchema),
     defaultValues: { startDate: "", endDate: "", quantity: 1 },
@@ -32,6 +33,11 @@ export function CreateRentalForm({ gearId, maxQuantity, disabled }: Props) {
     if (!user) {
       showToast({ title: "Login required", description: "Please login or create an account before creating a rental order.", variant: "info" });
       router.push("/auth/login");
+      return;
+    }
+
+    if (isAdmin) {
+      showToast({ title: "Admin action unavailable", description: "Admins can inspect rentals, but they cannot create customer rental orders.", variant: "info" });
       return;
     }
 
@@ -66,8 +72,11 @@ export function CreateRentalForm({ gearId, maxQuantity, disabled }: Props) {
         <div className="text-sm font-semibold text-red-700">
           {Object.values(form.formState.errors)[0]?.message ?? createRental.error?.message}
         </div>
-        <Button className="w-full" disabled={disabled || createRental.isPending}>
-          {createRental.isPending ? "Creating order..." : "Create Rental Order"}
+        {isAdmin ? (
+          <p className="text-sm font-semibold text-amber-700">Admins cannot create rental orders.</p>
+        ) : null}
+        <Button className="w-full" disabled={disabled || createRental.isPending || isAdmin}>
+          {isAdmin ? "Unavailable for Admins" : createRental.isPending ? "Creating order..." : "Create Rental Order"}
         </Button>
       </form>
     </Card>

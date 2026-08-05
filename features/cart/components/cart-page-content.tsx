@@ -26,6 +26,7 @@ export function CartPageContent() {
   const clearSelected = useCartStore((state) => state.clearSelected);
   const showToast = useToastStore((state) => state.showToast);
   const createRental = useCreateRental();
+  const isAdmin = user?.role === "ADMIN";
   const [selectedGearIds, setSelectedGearIds] = useState<string[]>(items.map((item) => item.gearId));
   const form = useForm<CartCheckoutFormValues>({
     resolver: zodResolver(cartCheckoutSchema),
@@ -45,6 +46,11 @@ export function CartPageContent() {
     if (!user) {
       showToast({ title: "Login required", description: "Please login before placing a cart order.", variant: "info" });
       router.push("/auth/login");
+      return;
+    }
+
+    if (isAdmin) {
+      showToast({ title: "Admin action unavailable", description: "Admins can inspect rentals, but they cannot place customer orders.", variant: "info" });
       return;
     }
 
@@ -119,14 +125,17 @@ export function CartPageContent() {
             <Input type="date" min={new Date().toISOString().slice(0, 10)} {...form.register("startDate")} />
             <Input type="date" min={new Date().toISOString().slice(0, 10)} {...form.register("endDate")} />
             <div className="text-sm font-semibold text-red-700">{Object.values(form.formState.errors)[0]?.message}</div>
+            {isAdmin ? (
+              <p className="text-sm font-semibold text-amber-700">Admins cannot place customer rental orders.</p>
+            ) : null}
             <div className="rounded-md bg-zinc-50 p-4 dark:bg-zinc-900">
               <p className="text-sm text-zinc-500">Selected items</p>
               <strong>{selectedItems.length}</strong>
               <p className="mt-2 text-sm text-zinc-500">Estimated daily total</p>
               <strong>{formatMoney(selectedTotal)}</strong>
             </div>
-            <Button className="w-full" disabled={createRental.isPending}>
-              {createRental.isPending ? "Placing order..." : "Place Rental Order"}
+            <Button className="w-full" disabled={createRental.isPending || isAdmin}>
+              {isAdmin ? "Unavailable for Admins" : createRental.isPending ? "Placing order..." : "Place Rental Order"}
             </Button>
           </Card>
         </form>

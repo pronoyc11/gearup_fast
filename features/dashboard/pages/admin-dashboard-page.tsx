@@ -18,6 +18,7 @@ export default function AdminDashboardPage() {
   const showToast = useToastStore((state) => state.showToast);
   const gears = toArray(gear);
   const rentalOrders = toArray(rentals);
+  const activeGearCount = gears.filter((item) => item.availability === "AVAILABLE").length;
 
   return (
     <main className="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6">
@@ -25,7 +26,7 @@ export default function AdminDashboardPage() {
         <div className="flex items-center gap-2"><Shield className="text-teal-700" /><h1 className="text-3xl font-black">Admin Dashboard</h1></div>
         <p className="text-zinc-600">Moderate users, categories, gear listings, and rental activity.</p>
       </header>
-      <AdminStats usersCount={users?.length ?? 0} gearCount={gears.length} rentalCount={rentalOrders.length} />
+      <AdminStats usersCount={users?.length ?? 0} activeGearCount={activeGearCount} rentalCount={rentalOrders.length} />
       <AdminUserTable
         users={users}
         onStatusChange={(userId, status) =>
