@@ -26,6 +26,8 @@ export type RentalItem = {
   status: RentalStatus;
   gear?: Gear;
   review?: Review;
+  reviewId?: string;
+  reviews?: Review[];
 };
 
 export type RentalOrder = {

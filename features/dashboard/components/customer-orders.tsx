@@ -5,7 +5,8 @@ import { StatusBadge } from "@/components/status-badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CreateReviewForm } from "@/features/review/components/create-review-form";
-import type { RentalOrder } from "@/features/rental/types/rental.types";
+import { useGearReviews } from "@/features/review/hooks/use-reviews";
+import type { RentalItem, RentalOrder } from "@/features/rental/types/rental.types";
 import { formatMoney } from "@/shared/utils/format";
 
 type Props = {
@@ -48,28 +49,38 @@ export function CustomerOrders({ orders, onCancel, isCancelling }: Props) {
             </div>
             <div className="grid gap-3 md:grid-cols-2">
               {order.items?.map((item) => (
-                <div key={item.id} className="rounded-md border border-zinc-200 p-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-semibold">{item.gear?.title ?? item.gearId}</span>
-                    <StatusBadge value={item.status} />
-                  </div>
-                  <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-                    <span className="text-sm text-zinc-500">{formatMoney(item.subtotal)}</span>
-                    {item.status === "CONFIRMED" ? (
-                      <Button asChild size="sm">
-                        <Link href={`/dashboard/customer/orders/${order.id}/pay?itemId=${item.id}`}>Pay Item</Link>
-                      </Button>
-                    ) : null}
-                  </div>
-                  {["RETURNED", "LATE_RETURN"].includes(item.status) && !item.review ? (
-                    <CreateReviewForm rentalOrderItemId={item.id} />
-                  ) : null}
-                </div>
+                <CustomerOrderItem key={item.id} item={item} orderId={order.id} />
               ))}
             </div>
           </article>
         ))}
       </div>
     </Card>
+  );
+}
+
+function CustomerOrderItem({ item, orderId }: { item: RentalItem; orderId: string }) {
+  const canReview = ["RETURNED", "LATE_RETURN"].includes(item.status);
+  const hasReviewInOrder = Boolean(item.review ?? item.reviewId ?? item.reviews?.length);
+  const { data: gearReviews, isLoading: isLoadingReviews } = useGearReviews(canReview && !hasReviewInOrder ? item.gearId : "");
+  const hasReviewInGearReviews = gearReviews?.some((review) => review.rentalOrderItemId === item.id) ?? false;
+  const showReviewForm = canReview && !hasReviewInOrder && !isLoadingReviews && !hasReviewInGearReviews;
+
+  return (
+    <div className="rounded-md border border-zinc-200 p-3">
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-semibold">{item.gear?.title ?? item.gearId}</span>
+        <StatusBadge value={item.status} />
+      </div>
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+        <span className="text-sm text-zinc-500">{formatMoney(item.subtotal)}</span>
+        {item.status === "CONFIRMED" ? (
+          <Button asChild size="sm">
+            <Link href={`/dashboard/customer/orders/${orderId}/pay?itemId=${item.id}`}>Pay Item</Link>
+          </Button>
+        ) : null}
+      </div>
+      {showReviewForm ? <CreateReviewForm rentalOrderItemId={item.id} /> : null}
+    </div>
   );
 }
