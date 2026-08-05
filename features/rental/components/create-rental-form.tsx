@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useAuthStore } from "@/stores/auth.store";
 import { useToastStore } from "@/stores/toast.store";
 import { useCreateRental } from "../hooks/use-rentals";
 import { createRentalSchema, type CreateRentalFormValues } from "../schemas/rental.schemas";
@@ -19,6 +20,7 @@ type Props = {
 
 export function CreateRentalForm({ gearId, maxQuantity, disabled }: Props) {
   const router = useRouter();
+  const user = useAuthStore((state) => state.user);
   const showToast = useToastStore((state) => state.showToast);
   const createRental = useCreateRental();
   const form = useForm<CreateRentalFormValues>({
@@ -27,14 +29,24 @@ export function CreateRentalForm({ gearId, maxQuantity, disabled }: Props) {
   });
 
   async function onSubmit(values: CreateRentalFormValues) {
+    if (!user) {
+      showToast({ title: "Login required", description: "Please login or create an account before creating a rental order.", variant: "info" });
+      router.push("/auth/login");
+      return;
+    }
+
     try {
-      const order = await createRental.mutateAsync({
+      await createRental.mutateAsync({
         startDate: values.startDate,
         endDate: values.endDate,
         items: [{ gearId, quantity: values.quantity }],
       });
-      showToast({ title: "Rental order created", description: "Track or pay it from your dashboard.", variant: "success" });
-      router.push(`/dashboard/customer/orders/${order.id}/pay`);
+      showToast({
+        title: "Rental order created",
+        description: "You can pay only after every provider confirms the order.",
+        variant: "success",
+      });
+      router.push("/dashboard/customer");
     } catch (error) {
       showToast({ title: "Could not create rental", description: error instanceof Error ? error.message : "Please check dates and stock.", variant: "error" });
     }

@@ -11,6 +11,10 @@ export function proxy(request: NextRequest) {
   const role = request.cookies.get("gearup_role")?.value as keyof typeof roleHome | undefined;
   const path = request.nextUrl.pathname;
 
+  if (token && (path === "/auth/login" || path === "/auth/register")) {
+    return NextResponse.redirect(new URL(roleHome[role ?? "CUSTOMER"], request.url));
+  }
+
   if (path.startsWith("/dashboard") && !token) {
     return NextResponse.redirect(new URL("/auth/login", request.url));
   }
@@ -29,5 +33,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/dashboard/:path*", "/auth/login", "/auth/register"],
 };

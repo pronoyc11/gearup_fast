@@ -8,12 +8,14 @@ import { useGears } from "../hooks/use-gears";
 import type { GearFilters } from "../types/gear.types";
 import type { ApiList } from "@/shared/types/api.types";
 import type { Gear } from "../types/gear.types";
+import { toArray } from "@/shared/api/response";
 
 export default function GearListPage() {
   const [filters, setFilters] = useState<GearFilters>({ page: 1, limit: 6, sortBy: "pricePerDay", sortOrder: "asc" });
   const { data, isLoading, error } = useGears(filters);
   const meta = Array.isArray(data) ? undefined : (data as ApiList<Gear> | undefined)?.meta;
   const page = filters.page ?? 1;
+  const currentCount = toArray(data).length;
 
   const handleSearchChange = useCallback((searchTerm: string) => {
     setFilters((currentFilters) => ({ ...currentFilters, searchTerm, page: 1 }));
@@ -28,7 +30,12 @@ export default function GearListPage() {
       <section>
         {error ? <div className="panel mb-4 p-6 text-red-700">{error.message}</div> : null}
         <GearGrid gears={data} isLoading={isLoading} />
-        <GearPagination meta={meta} page={page} onPageChange={(nextPage) => setFilters((currentFilters) => ({ ...currentFilters, page: nextPage }))} />
+        <GearPagination
+          meta={meta}
+          page={page}
+          currentCount={currentCount}
+          onPageChange={(nextPage) => setFilters((currentFilters) => ({ ...currentFilters, page: nextPage }))}
+        />
       </section>
     </main>
   );

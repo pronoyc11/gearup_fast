@@ -17,19 +17,33 @@ type Props = {
 export function CustomerOrders({ orders, onCancel, isCancelling }: Props) {
   return (
     <Card className="overflow-hidden">
-      <div className="border-b border-zinc-200 p-4"><h2 className="font-black">Rental Orders</h2></div>
+      <div className="border-b border-zinc-200 p-4">
+        <h2 className="font-black">Rental Orders</h2>
+      </div>
       <div className="divide-y divide-zinc-200">
         {orders?.map((order) => (
           <article key={order.id} className="space-y-4 p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="font-bold">Order #{order.id.slice(0, 8)}</p>
-                <p className="text-sm text-zinc-500">{order.startDate.slice(0, 10)} to {order.endDate.slice(0, 10)} · {formatMoney(order.totalAmount)}</p>
+                <Link className="font-bold hover:text-teal-700" href={`/dashboard/customer/orders/${order.id}`}>
+                  Order #{order.id.slice(0, 8)}
+                </Link>
+                <p className="text-sm text-zinc-500">
+                  {order.startDate.slice(0, 10)} to {order.endDate.slice(0, 10)} | {formatMoney(order.totalAmount)}
+                </p>
               </div>
               <div className="flex flex-wrap gap-2">
                 <StatusBadge value={order.status} />
-                {order.status === "CONFIRMED" ? <Button asChild><Link href={`/dashboard/customer/orders/${order.id}/pay`}>Pay Now</Link></Button> : null}
-                {order.status === "PLACED" ? <Button variant="secondary" disabled={isCancelling} onClick={() => onCancel(order.id)}>Cancel</Button> : null}
+                {order.status === "CONFIRMED" ? (
+                  <Button asChild>
+                    <Link href={`/dashboard/customer/orders/${order.id}/pay`}>Pay Now</Link>
+                  </Button>
+                ) : null}
+                {order.status === "PLACED" ? (
+                  <Button variant="secondary" disabled={isCancelling} onClick={() => onCancel(order.id)}>
+                    Cancel
+                  </Button>
+                ) : null}
               </div>
             </div>
             <div className="grid gap-3 md:grid-cols-2">
@@ -39,7 +53,9 @@ export function CustomerOrders({ orders, onCancel, isCancelling }: Props) {
                     <span className="font-semibold">{item.gear?.title ?? item.gearId}</span>
                     <StatusBadge value={item.status} />
                   </div>
-                  {["RETURNED", "LATE_RETURN"].includes(item.status) && !item.review ? <CreateReviewForm rentalOrderItemId={item.id} /> : null}
+                  {["RETURNED", "LATE_RETURN"].includes(item.status) && !item.review ? (
+                    <CreateReviewForm rentalOrderItemId={item.id} />
+                  ) : null}
                 </div>
               ))}
             </div>

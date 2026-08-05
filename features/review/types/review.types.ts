@@ -5,6 +5,9 @@ export type Review = {
   rating: number;
   comment: string;
   user?: User;
+  customer?: User;
+  userName?: string;
+  customerName?: string;
   rentalOrderItemId?: string;
   createdAt?: string;
 };
