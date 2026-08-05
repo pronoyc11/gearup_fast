@@ -1,8 +1,15 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #fafafa;
   --foreground: #18181b;
+}
+
+.dark {
+  --background: #09090b;
+  --foreground: #fafafa;
 }
 
 @theme inline {
@@ -38,6 +45,11 @@ textarea {
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
 }
 
+.dark .panel {
+  border-color: #27272a;
+  background: #09090b;
+}
+
 .input {
   width: 100%;
   min-height: 2.75rem;
@@ -47,6 +59,12 @@ textarea {
   padding: 0.5rem 0.75rem;
   font-size: 0.875rem;
   outline: none;
+}
+
+.dark .input {
+  border-color: #3f3f46;
+  background: #18181b;
+  color: #fafafa;
 }
 
 .input:focus {
@@ -78,4 +96,10 @@ textarea {
 .btn-ghost {
   border: 1px solid #d4d4d8;
   background: white;
+}
+
+.dark .btn-ghost {
+  border-color: #3f3f46;
+  background: #18181b;
+  color: #fafafa;
 }

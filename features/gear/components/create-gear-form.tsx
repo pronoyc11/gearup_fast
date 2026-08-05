@@ -10,11 +10,13 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useCategories } from "@/features/category/hooks/use-categories";
+import { useToastStore } from "@/stores/toast.store";
 import { useCreateGear } from "../hooks/use-create-gear";
 import { gearSchema, type GearFormValues } from "../schemas/gear.schemas";
 
 export function CreateGearForm() {
   const router = useRouter();
+  const showToast = useToastStore((state) => state.showToast);
   const { data: categories } = useCategories();
   const createGear = useCreateGear();
   const form = useForm<GearFormValues>({
@@ -33,12 +35,17 @@ export function CreateGearForm() {
   });
 
   async function onSubmit(values: GearFormValues) {
-    await createGear.mutateAsync({
-      ...values,
-      image: values.image || undefined,
-      specifications: values.specifications ? { notes: values.specifications } : undefined,
-    });
-    router.push("/dashboard/provider");
+    try {
+      await createGear.mutateAsync({
+        ...values,
+        image: values.image || undefined,
+        specifications: values.specifications ? { notes: values.specifications } : undefined,
+      });
+      showToast({ title: "Gear created", description: "Your inventory has been updated.", variant: "success" });
+      router.push("/dashboard/provider");
+    } catch (error) {
+      showToast({ title: "Could not create gear", description: error instanceof Error ? error.message : "Please check the form.", variant: "error" });
+    }
   }
 
   return (

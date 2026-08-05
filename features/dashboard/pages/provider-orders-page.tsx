@@ -2,13 +2,26 @@
 
 import { ClipboardList } from "lucide-react";
 import { useProviderRentals, useUpdateRentalItem } from "@/features/rental/hooks/use-rentals";
+import type { RentalStatus } from "@/features/rental/types/rental.types";
 import { toArray } from "@/shared/api/response";
+import { useToastStore } from "@/stores/toast.store";
 import { ProviderOrdersTable } from "../components/provider-orders-table";
 
 export default function ProviderOrdersPage() {
   const { data, isLoading } = useProviderRentals();
   const updateItem = useUpdateRentalItem();
+  const showToast = useToastStore((state) => state.showToast);
   const orders = toArray(data);
+
+  function handleUpdate(itemId: string, status: RentalStatus) {
+    updateItem.mutate(
+      { itemId, status },
+      {
+        onSuccess: () => showToast({ title: "Order item updated", variant: "success" }),
+        onError: (error) => showToast({ title: "Could not update order", description: error.message, variant: "error" }),
+      },
+    );
+  }
 
   return (
     <main className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6">
@@ -18,7 +31,7 @@ export default function ProviderOrdersPage() {
       </header>
       {updateItem.error ? <div className="panel p-4 text-sm font-semibold text-red-700">{updateItem.error.message}</div> : null}
       {isLoading ? <div className="panel p-5">Loading orders...</div> : (
-        <ProviderOrdersTable orders={orders} isUpdating={updateItem.isPending} onUpdate={(itemId, status) => updateItem.mutate({ itemId, status })} />
+        <ProviderOrdersTable orders={orders} isUpdating={updateItem.isPending} onUpdate={handleUpdate} />
       )}
     </main>
   );

@@ -6,19 +6,26 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useToastStore } from "@/stores/toast.store";
 import { useCreateCategory } from "../hooks/use-categories";
 import { categorySchema, type CategoryFormValues } from "../schemas/category.schemas";
 
 export function CategoryForm() {
   const createCategory = useCreateCategory();
+  const showToast = useToastStore((state) => state.showToast);
   const form = useForm<CategoryFormValues>({
     resolver: zodResolver(categorySchema),
     defaultValues: { name: "", description: "" },
   });
 
   async function onSubmit(values: CategoryFormValues) {
-    await createCategory.mutateAsync(values);
-    form.reset();
+    try {
+      await createCategory.mutateAsync(values);
+      showToast({ title: "Category created", variant: "success" });
+      form.reset();
+    } catch (error) {
+      showToast({ title: "Could not create category", description: error instanceof Error ? error.message : "Please try again.", variant: "error" });
+    }
   }
 
   return (

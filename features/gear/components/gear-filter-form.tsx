@@ -2,29 +2,38 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Search } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { useEffect } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { useCategories } from "@/features/category/hooks/use-categories";
+import { useDebounce } from "@/shared/hooks/use-debounce";
 import { gearFilterSchema, type GearFilterValues } from "../schemas/gear.schemas";
 
 type Props = {
   onFilterChange: (values: GearFilterValues) => void;
+  onSearchChange: (searchTerm: string) => void;
 };
 
-export function GearFilterForm({ onFilterChange }: Props) {
+export function GearFilterForm({ onFilterChange, onSearchChange }: Props) {
   const { data: categories } = useCategories();
   const form = useForm<GearFilterValues>({
     resolver: zodResolver(gearFilterSchema),
     defaultValues: { searchTerm: "", categoryName: "", brand: "", minPrice: "", maxPrice: "", availability: "" },
   });
+  const searchTerm = useWatch({ control: form.control, name: "searchTerm" });
+  const debouncedSearchTerm = useDebounce(searchTerm ?? "", 450);
+
+  useEffect(() => {
+    onSearchChange(debouncedSearchTerm);
+  }, [debouncedSearchTerm, onSearchChange]);
 
   return (
     <Card className="h-fit p-4">
       <h1 className="mb-4 text-xl font-black">Browse Gear</h1>
-      <form onChange={form.handleSubmit(onFilterChange)} className="space-y-3">
+      <form onSubmit={form.handleSubmit(onFilterChange)} className="space-y-3">
         <label className="block text-sm font-bold">Search</label>
         <div className="relative">
           <Search className="absolute left-3 top-3 text-zinc-400" size={18} />

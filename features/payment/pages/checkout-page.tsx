@@ -8,11 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useCustomerRental } from "@/features/rental/hooks/use-rentals";
 import { formatMoney } from "@/shared/utils/format";
+import { useToastStore } from "@/stores/toast.store";
 import { useCreateCheckoutSession } from "../hooks/use-payments";
 
 export default function CheckoutPage() {
   const { id } = useParams<{ id: string }>();
   const [error, setError] = useState("");
+  const showToast = useToastStore((state) => state.showToast);
   const { data: order } = useCustomerRental(id);
   const createSession = useCreateCheckoutSession();
 
@@ -22,11 +24,15 @@ export default function CheckoutPage() {
       const checkoutUrl = session.url ?? session.sessionUrl;
       if (!checkoutUrl) {
         setError("Checkout session created, but no redirect URL was returned.");
+        showToast({ title: "Checkout unavailable", description: "No redirect URL was returned.", variant: "error" });
         return;
       }
+      showToast({ title: "Opening Stripe checkout", variant: "info" });
       window.location.href = checkoutUrl;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Payment failed.");
+      const message = err instanceof Error ? err.message : "Payment failed.";
+      setError(message);
+      showToast({ title: "Payment failed", description: message, variant: "error" });
     }
   }
 

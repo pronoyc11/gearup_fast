@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useCurrentUser } from "@/features/auth/hooks/use-current-user";
 import { useAuthStore } from "@/stores/auth.store";
+import { useToastStore } from "@/stores/toast.store";
 import { useDeleteProfile, useUpdateProfile } from "../hooks/use-account";
 import { updateProfileSchema, type UpdateProfileFormValues } from "../schemas/account.schemas";
 
@@ -18,6 +19,7 @@ export function ProfileForm() {
   const router = useRouter();
   const logout = useAuthStore((state) => state.logout);
   const setAuth = useAuthStore((state) => state.setAuth);
+  const showToast = useToastStore((state) => state.showToast);
   const accessToken = useAuthStore((state) => state.accessToken);
   const { data: user } = useCurrentUser(Boolean(accessToken));
   const updateProfile = useUpdateProfile();
@@ -32,14 +34,24 @@ export function ProfileForm() {
   }, [form, user]);
 
   async function onSubmit(values: UpdateProfileFormValues) {
-    const updatedUser = await updateProfile.mutateAsync(values);
-    if (accessToken) setAuth(accessToken, updatedUser);
+    try {
+      const updatedUser = await updateProfile.mutateAsync(values);
+      if (accessToken) setAuth(accessToken, updatedUser);
+      showToast({ title: "Profile updated", variant: "success" });
+    } catch (error) {
+      showToast({ title: "Could not update profile", description: error instanceof Error ? error.message : "Please try again.", variant: "error" });
+    }
   }
 
   async function handleDelete() {
-    await deleteProfile.mutateAsync();
-    logout();
-    router.push("/");
+    try {
+      await deleteProfile.mutateAsync();
+      logout();
+      showToast({ title: "Profile deleted", variant: "success" });
+      router.push("/");
+    } catch (error) {
+      showToast({ title: "Could not delete profile", description: error instanceof Error ? error.message : "Please try again.", variant: "error" });
+    }
   }
 
   return (

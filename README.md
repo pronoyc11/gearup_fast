@@ -175,6 +175,7 @@ shared/api/axios.ts
 
 ```text
 /                                      Home
+/about                                 About GearUp
 /gear                                  Browse gear
 /gear/[id]                             Gear details and rental form
 /auth/login                            Login
@@ -241,9 +242,15 @@ Customer: nabila@gearup.test
 Public:
 
 - Visit `/`.
-- Confirm featured gear loads.
+- Confirm featured gear loads with only a small featured set.
+- Confirm Why Choose Us and CTA sections appear.
+- Toggle dark/light mode from the navbar.
+- Visit `/about`.
 - Visit `/gear`.
-- Test search, category, brand, price, and availability filters.
+- Test debounced search.
+- Test category, brand, price, and availability filters without page reload.
+- Confirm empty filters show `No gear exists` when no records match.
+- Test pagination controls.
 - Open `/gear/[id]`.
 - Confirm image, price, stock, category, reviews, and rental form.
 

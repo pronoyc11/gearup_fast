@@ -8,7 +8,7 @@ export function Card({
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & { asChild?: boolean }) {
   const Comp = asChild ? Slot : "div";
-  return <Comp className={cn("rounded-lg border border-zinc-200 bg-white shadow-sm", className)} {...props} />;
+  return <Comp className={cn("rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950", className)} {...props} />;
 }
 
 export function CardHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {

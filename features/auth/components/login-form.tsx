@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAuthStore, dashboardPath } from "@/stores/auth.store";
+import { useToastStore } from "@/stores/toast.store";
 import { authApi } from "../api/auth.api";
 import { useLogin } from "../hooks/use-login";
 import { loginSchema, type LoginFormValues } from "../schemas/auth.schemas";
@@ -16,6 +17,7 @@ import { loginSchema, type LoginFormValues } from "../schemas/auth.schemas";
 export function LoginForm() {
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
+  const showToast = useToastStore((state) => state.showToast);
   const login = useLogin();
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -23,10 +25,19 @@ export function LoginForm() {
   });
 
   async function onSubmit(values: LoginFormValues) {
-    const result = await login.mutateAsync(values);
-    const user = result.user ?? (await authApi.me());
-    setAuth(result.accessToken, user);
-    router.push(dashboardPath(user.role));
+    try {
+      const result = await login.mutateAsync(values);
+      const user = result.user ?? (await authApi.me());
+      setAuth(result.accessToken, user);
+      showToast({ title: "Logged in", description: `Welcome back, ${user.name}.`, variant: "success" });
+      router.push(dashboardPath(user.role));
+    } catch (error) {
+      showToast({
+        title: "Login failed",
+        description: error instanceof Error ? error.message : "No user exists for this email or password.",
+        variant: "error",
+      });
+    }
   }
 
   return (

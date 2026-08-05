@@ -4,6 +4,7 @@ import { Shield } from "lucide-react";
 import { CategoryForm } from "@/features/category/components/category-form";
 import { CategoryList } from "@/features/category/components/category-list";
 import { toArray } from "@/shared/api/response";
+import { useToastStore } from "@/stores/toast.store";
 import { AdminStats } from "../components/admin-stats";
 import { AdminUserTable } from "../components/admin-user-table";
 import { ModerationPanel } from "../components/moderation-panel";
@@ -14,6 +15,7 @@ export default function AdminDashboardPage() {
   const { data: gear } = useAdminGear();
   const { data: rentals } = useAdminRentals();
   const updateUser = useUpdateUserStatus();
+  const showToast = useToastStore((state) => state.showToast);
   const gears = toArray(gear);
   const rentalOrders = toArray(rentals);
 
@@ -24,7 +26,18 @@ export default function AdminDashboardPage() {
         <p className="text-zinc-600">Moderate users, categories, gear listings, and rental activity.</p>
       </header>
       <AdminStats usersCount={users?.length ?? 0} gearCount={gears.length} rentalCount={rentalOrders.length} />
-      <AdminUserTable users={users} onStatusChange={(userId, status) => updateUser.mutate({ userId, status })} />
+      <AdminUserTable
+        users={users}
+        onStatusChange={(userId, status) =>
+          updateUser.mutate(
+            { userId, status },
+            {
+              onSuccess: () => showToast({ title: "User status updated", variant: "success" }),
+              onError: (error) => showToast({ title: "Could not update user", description: error.message, variant: "error" }),
+            },
+          )
+        }
+      />
       <section className="grid gap-6 lg:grid-cols-[.8fr_1.2fr]">
         <CategoryForm />
         <CategoryList />

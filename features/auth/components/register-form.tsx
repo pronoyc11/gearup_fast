@@ -11,18 +11,25 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { useRegister } from "../hooks/use-register";
 import { registerSchema, type RegisterFormValues } from "../schemas/auth.schemas";
+import { useToastStore } from "@/stores/toast.store";
 
 export function RegisterForm() {
   const router = useRouter();
   const registerUser = useRegister();
+  const showToast = useToastStore((state) => state.showToast);
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: { name: "", email: "", password: "", role: "CUSTOMER", phone: "", address: "" },
   });
 
   async function onSubmit(values: RegisterFormValues) {
-    await registerUser.mutateAsync(values);
-    router.push("/auth/login");
+    try {
+      await registerUser.mutateAsync(values);
+      showToast({ title: "Registration successful", description: "You can now login.", variant: "success" });
+      router.push("/auth/login");
+    } catch (error) {
+      showToast({ title: "Registration failed", description: error instanceof Error ? error.message : "Please check your details.", variant: "error" });
+    }
   }
 
   return (

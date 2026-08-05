@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { useToastStore } from "@/stores/toast.store";
 import { useCreateRental } from "../hooks/use-rentals";
 import { createRentalSchema, type CreateRentalFormValues } from "../schemas/rental.schemas";
 
@@ -18,6 +19,7 @@ type Props = {
 
 export function CreateRentalForm({ gearId, maxQuantity, disabled }: Props) {
   const router = useRouter();
+  const showToast = useToastStore((state) => state.showToast);
   const createRental = useCreateRental();
   const form = useForm<CreateRentalFormValues>({
     resolver: zodResolver(createRentalSchema),
@@ -25,13 +27,17 @@ export function CreateRentalForm({ gearId, maxQuantity, disabled }: Props) {
   });
 
   async function onSubmit(values: CreateRentalFormValues) {
-    const order = await createRental.mutateAsync({
-      startDate: values.startDate,
-      endDate: values.endDate,
-      items: [{ gearId, quantity: values.quantity }],
-    });
-
-    router.push(`/dashboard/customer/orders/${order.id}/pay`);
+    try {
+      const order = await createRental.mutateAsync({
+        startDate: values.startDate,
+        endDate: values.endDate,
+        items: [{ gearId, quantity: values.quantity }],
+      });
+      showToast({ title: "Rental order created", description: "Track or pay it from your dashboard.", variant: "success" });
+      router.push(`/dashboard/customer/orders/${order.id}/pay`);
+    } catch (error) {
+      showToast({ title: "Could not create rental", description: error instanceof Error ? error.message : "Please check dates and stock.", variant: "error" });
+    }
   }
 
   return (
