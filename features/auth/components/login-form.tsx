@@ -34,7 +34,7 @@ export function LoginForm() {
     } catch (error) {
       showToast({
         title: "Login failed",
-        description: error instanceof Error ? error.message : "No user exists for this email or password.",
+        description: error instanceof Error ? (error.message.includes('No record was found for a query.')?"No record found for a query":error.message ): "No user exists for this email or password.",
         variant: "error",
       });
     }
@@ -55,7 +55,7 @@ export function LoginForm() {
           <Input type="password" placeholder="Password" {...form.register("password")} />
           <p className="mt-1 text-sm font-semibold text-red-700">{form.formState.errors.password?.message}</p>
         </div>
-        {login.error ? <p className="text-sm font-semibold text-red-700">{login.error.message}</p> : null}
+        {login.error ? <p className="text-sm font-semibold text-red-700">{(login.error.message.includes('No record was found for a query.')?"No record found for a query":login.error.message )}</p> : null}
         <Button className="w-full" disabled={login.isPending}>{login.isPending ? "Signing in..." : "Sign in"}</Button>
       </form>
       <p className="text-center text-sm text-zinc-600">
