@@ -20,6 +20,18 @@ function friendlyError(error: unknown, fallback: string) {
   return fallback;
 }
 
+function friendlyDeleteError(error: unknown) {
+  if (!error) return "";
+
+  const message = error instanceof Error ? error.message : "";
+
+  if (message.includes("Foreign key constraint") || message.includes("rentalOrders_customerId_fkey")) {
+    return "Your profile cannot be deleted yet because it is connected to existing rental orders. Please contact support if you need the account removed.";
+  }
+
+  return friendlyError(error, "We could not delete your profile right now. Please try again in a moment.");
+}
+
 function formatDate(value?: string) {
   if (!value) return "Not available";
   return new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(new Date(value));
@@ -69,7 +81,7 @@ export function ProfileForm() {
     } catch (error) {
       showToast({
         title: "Could not delete profile",
-        description: friendlyError(error, "Please try again in a moment."),
+        description: friendlyDeleteError(error),
         variant: "error",
       });
     }
@@ -159,7 +171,7 @@ export function ProfileForm() {
         <div className="text-sm font-semibold text-red-700">
           {form.formState.errors.name?.message ??
             friendlyError(updateProfile.error, "") ??
-            friendlyError(deleteProfile.error, "")}
+            friendlyDeleteError(deleteProfile.error)}
         </div>
         <div className="flex flex-wrap gap-2">
           <Button disabled={updateProfile.isPending}>
