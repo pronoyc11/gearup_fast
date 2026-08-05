@@ -10,7 +10,7 @@ import type { ApiList } from "@/shared/types/api.types";
 import type { Gear } from "../types/gear.types";
 
 export default function GearListPage() {
-  const [filters, setFilters] = useState<GearFilters>({ page: 1, limit: 9, sortBy: "pricePerDay", sortOrder: "asc" });
+  const [filters, setFilters] = useState<GearFilters>({ page: 1, limit: 6, sortBy: "pricePerDay", sortOrder: "asc" });
   const { data, isLoading, error } = useGears(filters);
   const meta = Array.isArray(data) ? undefined : (data as ApiList<Gear> | undefined)?.meta;
   const page = filters.page ?? 1;
