@@ -1,9 +1,10 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, ShieldCheck, Trash2, UserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuthStore } from "@/stores/auth.store";
 import { useToastStore } from "@/stores/toast.store";
-import { useDeleteProfile, useProfile, useUpdateProfile } from "../hooks/use-account";
+import { accountApi } from "../api/account.api";
+import { useDeleteProfile, useProfile } from "../hooks/use-account";
 import { updateProfileSchema, type UpdateProfileFormValues } from "../schemas/account.schemas";
 
 function friendlyError(error: unknown, fallback: string) {
@@ -39,6 +41,7 @@ function formatDate(value?: string) {
 
 export function ProfileForm() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const logout = useAuthStore((state) => state.logout);
   const setAuth = useAuthStore((state) => state.setAuth);
   const showToast = useToastStore((state) => state.showToast);
@@ -47,32 +50,63 @@ export function ProfileForm() {
   const authUserId = authUser?.id;
   const { data: user, error: profileError, isLoading } = useProfile(Boolean(accessToken));
   const profileUser = user ?? authUser;
-  const updateProfile = useUpdateProfile();
   const deleteProfile = useDeleteProfile();
+  const [saveError, setSaveError] = useState<unknown>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const lastResetUserId = useRef<string | undefined>(undefined);
   const form = useForm<UpdateProfileFormValues>({
     resolver: zodResolver(updateProfileSchema),
     defaultValues: { name: "", phone: "", address: "" },
   });
+  const { isDirty } = form.formState;
 
   useEffect(() => {
-    form.reset({ name: profileUser?.name ?? "", phone: profileUser?.phone ?? "", address: profileUser?.address ?? "" });
-  }, [authUserId, form, profileUser]);
+    const nextUserId = profileUser?.id;
+
+    if (!profileUser) {
+      if (!authUserId) form.reset({ name: "", phone: "", address: "" });
+      return;
+    }
+
+    if (lastResetUserId.current !== nextUserId || !isDirty) {
+      form.reset({ name: profileUser.name, phone: profileUser.phone ?? "", address: profileUser.address ?? "" });
+      lastResetUserId.current = nextUserId;
+    }
+  }, [authUserId, form, isDirty, profileUser]);
 
   useEffect(() => {
     if (accessToken && user) setAuth(accessToken, user);
   }, [accessToken, setAuth, user]);
 
   async function onSubmit(values: UpdateProfileFormValues) {
+    if (!accessToken) {
+      showToast({ title: "Login required", description: "Please login before updating your profile.", variant: "info" });
+      router.push("/auth/login");
+      return;
+    }
+
     try {
-      const updatedUser = await updateProfile.mutateAsync(values);
-      if (accessToken) setAuth(accessToken, updatedUser);
+      setSaveError(null);
+      setIsSaving(true);
+      await accountApi.updateProfile(values, accessToken);
+      const updatedUser = await accountApi.getProfile(accessToken);
+
+      setAuth(accessToken, updatedUser);
+      form.reset({ name: updatedUser.name, phone: updatedUser.phone ?? "", address: updatedUser.address ?? "" });
+      queryClient.setQueryData(["account", "profile", updatedUser.id], updatedUser);
+      queryClient.setQueryData(["auth", "me", updatedUser.id], updatedUser);
+      queryClient.invalidateQueries({ queryKey: ["account", "profile"] });
+      queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
       showToast({ title: "Profile updated", description: "Your account details have been saved.", variant: "success" });
     } catch (error) {
+      setSaveError(error);
       showToast({
         title: "Could not update profile",
         description: friendlyError(error, "Please check your details and try again."),
         variant: "error",
       });
+    } finally {
+      setIsSaving(false);
     }
   }
 
@@ -177,12 +211,12 @@ export function ProfileForm() {
         <Textarea placeholder="Address" {...form.register("address")} />
         <div className="text-sm font-semibold text-red-700">
           {form.formState.errors.name?.message ??
-            friendlyError(updateProfile.error, "") ??
+            friendlyError(saveError, "") ??
             friendlyDeleteError(deleteProfile.error)}
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button disabled={updateProfile.isPending}>
-            {updateProfile.isPending ? "Saving..." : "Save Profile"}
+          <Button type="submit" disabled={isSaving}>
+            {isSaving ? "Saving..." : "Save Profile"}
           </Button>
           <Button variant="destructive" type="button" onClick={handleDelete} disabled={deleteProfile.isPending}>
             <Trash2 size={16} /> {deleteProfile.isPending ? "Deleting..." : "Delete Profile"}
