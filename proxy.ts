@@ -11,6 +11,7 @@ const publicPaths = new Set([
   "/about",
   "/auth/login",
   "/auth/register",
+  "/cart",
   "/payment/success",
   "/payment/cancel",
 ]);
@@ -34,10 +35,6 @@ export function proxy(request: NextRequest) {
 
   if (!token) {
     return NextResponse.next();
-  }
-
-  if (path === "/cart" && role !== "CUSTOMER") {
-    return NextResponse.redirect(new URL(roleHome[role ?? "CUSTOMER"], request.url));
   }
 
   if (path.startsWith("/dashboard/admin") && role !== "ADMIN") {

@@ -6,10 +6,12 @@ import { authApi } from "../api/auth.api";
 
 export function useCurrentUser(enabled = true) {
   const userId = useAuthStore((state) => state.user?.id);
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const sessionKey = userId ?? accessToken?.slice(-12);
 
   return useQuery({
-    queryKey: ["auth", "me", userId],
-    queryFn: authApi.me,
-    enabled: enabled && Boolean(userId),
+    queryKey: ["auth", "me", sessionKey],
+    queryFn: () => authApi.me(),
+    enabled: enabled && Boolean(accessToken),
   });
 }

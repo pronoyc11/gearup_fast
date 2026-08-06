@@ -4,5 +4,6 @@ import type { LoginPayload, LoginResponse, RegisterPayload, User } from "../type
 export const authApi = {
   login: (payload: LoginPayload) => apiClient.post<unknown, LoginResponse>("/api/auth/login", payload),
   register: (payload: RegisterPayload) => apiClient.post<unknown, User>("/api/auth/register", payload),
-  me: () => apiClient.get<unknown, User>("/api/user/me"),
+  me: (accessToken?: string) =>
+    apiClient.get<unknown, User>("/api/user/me", accessToken ? { headers: { Authorization: `Bearer ${accessToken}` } } : undefined),
 };

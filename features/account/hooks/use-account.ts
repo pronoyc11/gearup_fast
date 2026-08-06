@@ -6,11 +6,13 @@ import { accountApi } from "../api/account.api";
 
 export function useProfile(enabled = true) {
   const userId = useAuthStore((state) => state.user?.id);
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const sessionKey = userId ?? accessToken?.slice(-12);
 
   return useQuery({
-    queryKey: ["account", "profile", userId],
+    queryKey: ["account", "profile", sessionKey],
     queryFn: accountApi.getProfile,
-    enabled: enabled && Boolean(userId),
+    enabled: enabled && Boolean(accessToken),
   });
 }
 

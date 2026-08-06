@@ -27,7 +27,7 @@ export function LoginForm() {
   async function onSubmit(values: LoginFormValues) {
     try {
       const result = await login.mutateAsync(values);
-      const user = result.user ?? (await authApi.me());
+      const user = result.user ?? (await authApi.me(result.accessToken));
       setAuth(result.accessToken, user);
       showToast({ title: "Logged in", description: `Welcome back, ${user.name}.`, variant: "success" });
       router.push(dashboardPath(user.role));
