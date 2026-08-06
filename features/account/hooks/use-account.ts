@@ -1,24 +1,28 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAuthStore } from "@/stores/auth.store";
 import { accountApi } from "../api/account.api";
 
 export function useProfile(enabled = true) {
+  const userId = useAuthStore((state) => state.user?.id);
+
   return useQuery({
-    queryKey: ["account", "profile"],
+    queryKey: ["account", "profile", userId],
     queryFn: accountApi.getProfile,
-    enabled,
+    enabled: enabled && Boolean(userId),
   });
 }
 
 export function useUpdateProfile() {
   const queryClient = useQueryClient();
+  const userId = useAuthStore((state) => state.user?.id);
 
   return useMutation({
     mutationFn: accountApi.updateProfile,
     onSuccess: (user) => {
-      queryClient.setQueryData(["account", "profile"], user);
-      queryClient.setQueryData(["auth", "me"], user);
+      queryClient.setQueryData(["account", "profile", user.id ?? userId], user);
+      queryClient.setQueryData(["auth", "me", user.id ?? userId], user);
       queryClient.invalidateQueries({ queryKey: ["account", "profile"] });
       queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
     },

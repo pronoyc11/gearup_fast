@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAuthStore } from "@/stores/auth.store";
 import { rentalApi } from "../api/rental.api";
 import type { RentalStatus } from "../types/rental.types";
 
@@ -14,17 +15,22 @@ export function useCreateRental() {
 }
 
 export function useCustomerRentals() {
+  const userId = useAuthStore((state) => state.user?.id);
+
   return useQuery({
-    queryKey: ["customer-rentals"],
+    queryKey: ["customer-rentals", userId],
     queryFn: rentalApi.getCustomerRentals,
+    enabled: Boolean(userId),
   });
 }
 
 export function useCustomerRental(orderId: string) {
+  const userId = useAuthStore((state) => state.user?.id);
+
   return useQuery({
-    queryKey: ["customer-rental", orderId],
+    queryKey: ["customer-rental", userId, orderId],
     queryFn: () => rentalApi.getCustomerRental(orderId),
-    enabled: Boolean(orderId),
+    enabled: Boolean(userId && orderId),
   });
 }
 
@@ -33,9 +39,9 @@ export function useCancelRental() {
 
   return useMutation({
     mutationFn: rentalApi.cancelRental,
-    onSuccess: (order) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["customer-rentals"] });
-      queryClient.invalidateQueries({ queryKey: ["customer-rental", order.id] });
+      queryClient.invalidateQueries({ queryKey: ["customer-rental"] });
     },
   });
 }
@@ -45,17 +51,20 @@ export function useCancelRentalItem() {
 
   return useMutation({
     mutationFn: rentalApi.cancelRentalItem,
-    onSuccess: (order) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["customer-rentals"] });
-      queryClient.invalidateQueries({ queryKey: ["customer-rental", order.id] });
+      queryClient.invalidateQueries({ queryKey: ["customer-rental"] });
     },
   });
 }
 
 export function useProviderRentals() {
+  const userId = useAuthStore((state) => state.user?.id);
+
   return useQuery({
-    queryKey: ["provider-rentals"],
+    queryKey: ["provider-rentals", userId],
     queryFn: rentalApi.getProviderRentals,
+    enabled: Boolean(userId),
   });
 }
 

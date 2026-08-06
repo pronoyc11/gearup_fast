@@ -43,6 +43,7 @@ export function ProfileForm() {
   const setAuth = useAuthStore((state) => state.setAuth);
   const showToast = useToastStore((state) => state.showToast);
   const accessToken = useAuthStore((state) => state.accessToken);
+  const authUserId = useAuthStore((state) => state.user?.id);
   const { data: user, error: profileError, isLoading } = useProfile(Boolean(accessToken));
   const updateProfile = useUpdateProfile();
   const deleteProfile = useDeleteProfile();
@@ -52,8 +53,8 @@ export function ProfileForm() {
   });
 
   useEffect(() => {
-    if (user) form.reset({ name: user.name, phone: user.phone ?? "", address: user.address ?? "" });
-  }, [form, user]);
+    form.reset({ name: user?.name ?? "", phone: user?.phone ?? "", address: user?.address ?? "" });
+  }, [authUserId, form, user]);
 
   async function onSubmit(values: UpdateProfileFormValues) {
     try {
