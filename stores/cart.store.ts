@@ -11,6 +11,7 @@ type CartState = {
   removeItem: (gearId: string) => void;
   updateQuantity: (gearId: string, quantity: number) => void;
   clearSelected: (gearIds: string[]) => void;
+  clearCart: () => void;
 };
 
 export const useCartStore = create<CartState>()(
@@ -59,6 +60,9 @@ export const useCartStore = create<CartState>()(
       },
       clearSelected: (gearIds) => {
         set((state) => ({ items: state.items.filter((item) => !gearIds.includes(item.gearId)) }));
+      },
+      clearCart: () => {
+        set({ items: [] });
       },
     }),
     {

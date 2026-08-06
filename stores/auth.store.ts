@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import type { Role, User } from "@/features/auth/types/auth.types";
+import { useCartStore } from "@/stores/cart.store";
 
 type AuthState = {
   accessToken: string | null;
@@ -43,6 +44,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: () => {
     localStorage.removeItem(tokenKey);
     localStorage.removeItem(userKey);
+    useCartStore.getState().clearCart();
     clearAuthCookies();
     set({ accessToken: null, user: null });
   },
