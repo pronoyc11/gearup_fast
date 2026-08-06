@@ -12,7 +12,7 @@ The application is organized around real product workflows:
 
 | Resource | URL |
 | --- | --- |
-| Live backend fallback | `https://gearup-backend-gold.vercel.app` |
+| Live backend base URL | `https://gearup-backend-soqv.onrender.com` |
 | Backend repository | `https://github.com/pronoyc11/gearup-backend` |
 | API integration map | [`API_INTEGRATION.md`](./API_INTEGRATION.md) |
 
@@ -285,7 +285,7 @@ Backend base URL is configured in [`shared/config/env.ts`](./shared/config/env.t
 export const env = {
   apiBaseUrl:
     process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
-    "https://gearup-backend-gold.vercel.app",
+    "https://gearup-backend-soqv.onrender.com",
 };
 ```
 
@@ -310,7 +310,7 @@ For a complete component-to-endpoint list, see [`API_INTEGRATION.md`](./API_INTE
 Create `.env` in the project root.
 
 ```env
-NEXT_PUBLIC_API_URL=https://gearup-backend-gold.vercel.app
+NEXT_PUBLIC_API_URL=https://gearup-backend-soqv.onrender.com
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
 NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your_unsigned_upload_preset
 ```

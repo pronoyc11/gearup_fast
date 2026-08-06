@@ -1,6 +1,6 @@
 # API Integration
 
-Base URL is read from `NEXT_PUBLIC_API_URL` in `shared/config/env.ts`, falling back to `https://gearup-backend-gold.vercel.app`. Requests use `shared/api/axios.ts`, which unwraps the backend `{ data }` response and attaches the bearer token from `useAuthStore`.
+Base URL is read from `NEXT_PUBLIC_API_URL` in `shared/config/env.ts`. The deployed backend base URL is `https://gearup-backend-soqv.onrender.com`. Requests use `shared/api/axios.ts`, which unwraps the backend `{ data }` response and attaches the bearer token from `useAuthStore`.
 
 ## Auth
 
