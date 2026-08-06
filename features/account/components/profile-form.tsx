@@ -43,8 +43,10 @@ export function ProfileForm() {
   const setAuth = useAuthStore((state) => state.setAuth);
   const showToast = useToastStore((state) => state.showToast);
   const accessToken = useAuthStore((state) => state.accessToken);
-  const authUserId = useAuthStore((state) => state.user?.id);
+  const authUser = useAuthStore((state) => state.user);
+  const authUserId = authUser?.id;
   const { data: user, error: profileError, isLoading } = useProfile(Boolean(accessToken));
+  const profileUser = user ?? authUser;
   const updateProfile = useUpdateProfile();
   const deleteProfile = useDeleteProfile();
   const form = useForm<UpdateProfileFormValues>({
@@ -53,8 +55,12 @@ export function ProfileForm() {
   });
 
   useEffect(() => {
-    form.reset({ name: user?.name ?? "", phone: user?.phone ?? "", address: user?.address ?? "" });
-  }, [authUserId, form, user]);
+    form.reset({ name: profileUser?.name ?? "", phone: profileUser?.phone ?? "", address: profileUser?.address ?? "" });
+  }, [authUserId, form, profileUser]);
+
+  useEffect(() => {
+    if (accessToken && user) setAuth(accessToken, user);
+  }, [accessToken, setAuth, user]);
 
   async function onSubmit(values: UpdateProfileFormValues) {
     try {
@@ -101,7 +107,7 @@ export function ProfileForm() {
     );
   }
 
-  if (isLoading) {
+  if (isLoading && !profileUser) {
     return <Card className="p-6">Loading your profile...</Card>;
   }
 
@@ -127,9 +133,9 @@ export function ProfileForm() {
           <h1 className="text-2xl font-black">Account</h1>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Badge variant="info">{user?.role ?? "USER"}</Badge>
-          <Badge variant={user?.status === "SUSPENDED" ? "danger" : "success"}>
-            {user?.status ?? "ACTIVE"}
+          <Badge variant="info">{profileUser?.role ?? "USER"}</Badge>
+          <Badge variant={profileUser?.status === "SUSPENDED" ? "danger" : "success"}>
+            {profileUser?.status ?? "ACTIVE"}
           </Badge>
         </div>
       </div>
@@ -137,23 +143,23 @@ export function ProfileForm() {
       <section className="grid gap-3 sm:grid-cols-2">
         <div className="rounded-md bg-zinc-50 p-4 dark:bg-zinc-900">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">User ID</p>
-          <strong className="break-all">{user?.id ?? "Not available"}</strong>
+          <strong className="break-all">{profileUser?.id ?? "Not available"}</strong>
         </div>
         <div className="rounded-md bg-zinc-50 p-4 dark:bg-zinc-900">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">Email</p>
-          <strong className="break-all">{user?.email ?? "Not available"}</strong>
+          <strong className="break-all">{profileUser?.email ?? "Not available"}</strong>
         </div>
         <div className="rounded-md bg-zinc-50 p-4 dark:bg-zinc-900">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">Phone</p>
-          <strong>{user?.phone || "Not provided"}</strong>
+          <strong>{profileUser?.phone || "Not provided"}</strong>
         </div>
         <div className="rounded-md bg-zinc-50 p-4 dark:bg-zinc-900">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">Joined</p>
-          <strong>{formatDate(user?.createdAt)}</strong>
+          <strong>{formatDate(profileUser?.createdAt)}</strong>
         </div>
         <div className="rounded-md bg-zinc-50 p-4 dark:bg-zinc-900 sm:col-span-2">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">Address</p>
-          <strong>{user?.address || "Not provided"}</strong>
+          <strong>{profileUser?.address || "Not provided"}</strong>
         </div>
       </section>
 
@@ -163,10 +169,10 @@ export function ProfileForm() {
           Update Profile
         </div>
         <Input placeholder="Name" {...form.register("name")} />
-        <Input value={user?.email ?? ""} readOnly />
+        <Input value={profileUser?.email ?? ""} readOnly />
         <div className="grid gap-3 sm:grid-cols-2">
           <Input placeholder="Phone" {...form.register("phone")} />
-          <Input value={user?.role ?? ""} readOnly />
+          <Input value={profileUser?.role ?? ""} readOnly />
         </div>
         <Textarea placeholder="Address" {...form.register("address")} />
         <div className="text-sm font-semibold text-red-700">
