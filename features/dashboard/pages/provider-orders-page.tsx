@@ -3,15 +3,19 @@
 import { ClipboardList } from "lucide-react";
 import { useProviderRentals, useUpdateRentalItem } from "@/features/rental/hooks/use-rentals";
 import type { RentalStatus } from "@/features/rental/types/rental.types";
+import { filterProviderRentalItems } from "@/features/rental/utils/provider-rental-filter";
 import { toArray } from "@/shared/api/response";
+import { useAuthStore } from "@/stores/auth.store";
 import { useToastStore } from "@/stores/toast.store";
 import { ProviderOrdersTable } from "../components/provider-orders-table";
 
 export default function ProviderOrdersPage() {
+  const user = useAuthStore((state) => state.user);
   const { data, isLoading } = useProviderRentals();
   const updateItem = useUpdateRentalItem();
   const showToast = useToastStore((state) => state.showToast);
-  const rentalItems = toArray(data);
+  const rentalItems = filterProviderRentalItems(toArray(data), user?.id);
+
   function handleUpdate(itemId: string, status: RentalStatus) {
     updateItem.mutate(
       { itemId, status },

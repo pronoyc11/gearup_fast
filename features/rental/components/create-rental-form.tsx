@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import { useAuthStore } from "@/stores/auth.store";
 import { useToastStore } from "@/stores/toast.store";
 import { useCreateRental } from "../hooks/use-rentals";
 import { createRentalSchema, type CreateRentalFormValues } from "../schemas/rental.schemas";
+import { todayDateString } from "../utils/rental-date-validation";
 
 type Props = {
   gearId: string;
@@ -24,10 +25,12 @@ export function CreateRentalForm({ gearId, maxQuantity, disabled }: Props) {
   const showToast = useToastStore((state) => state.showToast);
   const createRental = useCreateRental();
   const cannotCreateRental = user?.role === "ADMIN" || user?.role === "PROVIDER";
+  const today = todayDateString();
   const form = useForm<CreateRentalFormValues>({
     resolver: zodResolver(createRentalSchema),
     defaultValues: { startDate: "", endDate: "", quantity: 1 },
   });
+  const startDate = useWatch({ control: form.control, name: "startDate" });
 
   async function onSubmit(values: CreateRentalFormValues) {
     if (!user) {
@@ -65,8 +68,8 @@ export function CreateRentalForm({ gearId, maxQuantity, disabled }: Props) {
       </div>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid gap-3 sm:grid-cols-3">
-          <Input type="date" min={new Date().toISOString().slice(0, 10)} {...form.register("startDate")} />
-          <Input type="date" min={new Date().toISOString().slice(0, 10)} {...form.register("endDate")} />
+          <Input type="date" min={today} {...form.register("startDate")} />
+          <Input type="date" min={startDate || today} {...form.register("endDate")} />
           <Input type="number" min={1} max={maxQuantity} {...form.register("quantity", { valueAsNumber: true })} />
         </div>
         <div className="text-sm font-semibold text-red-700">

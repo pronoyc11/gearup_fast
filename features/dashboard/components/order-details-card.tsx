@@ -7,9 +7,11 @@ import { formatMoney } from "@/shared/utils/format";
 
 type Props = {
   order: RentalOrder;
+  onCancelItem?: (itemId: string) => void;
+  isCancellingItem?: boolean;
 };
 
-export function OrderDetailsCard({ order }: Props) {
+export function OrderDetailsCard({ order, onCancelItem, isCancellingItem }: Props) {
   return (
     <div className="space-y-6">
       <Card className="p-5">
@@ -111,6 +113,11 @@ export function OrderDetailsCard({ order }: Props) {
               {item.status === "CONFIRMED" ? (
                 <Button asChild className="mt-5">
                   <Link href={`/dashboard/customer/orders/${order.id}/pay?itemId=${item.id}`}>Pay This Item</Link>
+                </Button>
+              ) : null}
+              {item.status === "PLACED" && onCancelItem ? (
+                <Button type="button" variant="secondary" className="mt-5" disabled={isCancellingItem} onClick={() => onCancelItem(item.id)}>
+                  Cancel This Item
                 </Button>
               ) : null}
             </Card>

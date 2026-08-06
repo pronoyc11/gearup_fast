@@ -12,10 +12,11 @@ import { formatMoney } from "@/shared/utils/format";
 type Props = {
   orders?: RentalOrder[];
   onCancel: (orderId: string) => void;
+  onCancelItem: (itemId: string) => void;
   isCancelling?: boolean;
 };
 
-export function CustomerOrders({ orders, onCancel, isCancelling }: Props) {
+export function CustomerOrders({ orders, onCancel, onCancelItem, isCancelling }: Props) {
   return (
     <Card className="overflow-hidden">
       <div className="border-b border-zinc-200 p-4">
@@ -42,14 +43,14 @@ export function CustomerOrders({ orders, onCancel, isCancelling }: Props) {
                 ) : null}
                 {order.status === "PLACED" ? (
                   <Button variant="secondary" disabled={isCancelling} onClick={() => onCancel(order.id)}>
-                    Cancel
+                    Cancel Order
                   </Button>
                 ) : null}
               </div>
             </div>
             <div className="grid gap-3 md:grid-cols-2">
               {order.items?.map((item) => (
-                <CustomerOrderItem key={item.id} item={item} orderId={order.id} />
+                <CustomerOrderItem key={item.id} item={item} orderId={order.id} onCancelItem={onCancelItem} isCancelling={isCancelling} />
               ))}
             </div>
           </article>
@@ -59,7 +60,17 @@ export function CustomerOrders({ orders, onCancel, isCancelling }: Props) {
   );
 }
 
-function CustomerOrderItem({ item, orderId }: { item: RentalItem; orderId: string }) {
+function CustomerOrderItem({
+  item,
+  orderId,
+  onCancelItem,
+  isCancelling,
+}: {
+  item: RentalItem;
+  orderId: string;
+  onCancelItem: (itemId: string) => void;
+  isCancelling?: boolean;
+}) {
   const canReview = ["RETURNED", "LATE_RETURN"].includes(item.status);
   const hasReviewInOrder = Boolean(item.review ?? item.reviewId ?? item.reviews?.length);
   const { data: gearReviews, isLoading: isLoadingReviews } = useGearReviews(canReview && !hasReviewInOrder ? item.gearId : "");
@@ -77,6 +88,11 @@ function CustomerOrderItem({ item, orderId }: { item: RentalItem; orderId: strin
         {item.status === "CONFIRMED" ? (
           <Button asChild size="sm">
             <Link href={`/dashboard/customer/orders/${orderId}/pay?itemId=${item.id}`}>Pay Item</Link>
+          </Button>
+        ) : null}
+        {item.status === "PLACED" ? (
+          <Button type="button" variant="secondary" size="sm" disabled={isCancelling} onClick={() => onCancelItem(item.id)}>
+            Cancel Item
           </Button>
         ) : null}
       </div>

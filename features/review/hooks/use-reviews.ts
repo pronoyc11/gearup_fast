@@ -23,3 +23,30 @@ export function useCreateReview() {
     },
   });
 }
+
+export function useUpdateReview() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ reviewId, payload }: { reviewId: string; payload: { rating: number; comment: string } }) =>
+      reviewApi.updateReview(reviewId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["reviews"] });
+      queryClient.invalidateQueries({ queryKey: ["customer-rentals"] });
+      queryClient.invalidateQueries({ queryKey: ["customer-rental"] });
+    },
+  });
+}
+
+export function useDeleteReview() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: reviewApi.deleteReview,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["reviews"] });
+      queryClient.invalidateQueries({ queryKey: ["customer-rentals"] });
+      queryClient.invalidateQueries({ queryKey: ["customer-rental"] });
+    },
+  });
+}

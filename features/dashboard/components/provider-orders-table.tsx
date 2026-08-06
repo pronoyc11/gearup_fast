@@ -14,6 +14,15 @@ type Props = {
 };
 
 export function ProviderOrdersTable({ items, onUpdate, isUpdating }: Props) {
+  if (items.length === 0) {
+    return (
+      <Card className="p-8 text-center">
+        <h2 className="text-xl font-black">No incoming orders</h2>
+        <p className="mt-2 text-zinc-600 dark:text-zinc-400">Rental items for your gear will appear here.</p>
+      </Card>
+    );
+  }
+
   return (
     <Card className="overflow-hidden">
       <div className="overflow-x-auto">

@@ -5,11 +5,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useCreateRental } from "@/features/rental/hooks/use-rentals";
+import { todayDateString } from "@/features/rental/utils/rental-date-validation";
 import { fallbackGearImage } from "@/shared/utils/assets";
 import { formatMoney } from "@/shared/utils/format";
 import { useAuthStore } from "@/stores/auth.store";
@@ -27,11 +28,13 @@ export function CartPageContent() {
   const showToast = useToastStore((state) => state.showToast);
   const createRental = useCreateRental();
   const cannotCreateRental = user?.role === "ADMIN" || user?.role === "PROVIDER";
+  const today = todayDateString();
   const [selectedGearIds, setSelectedGearIds] = useState<string[]>(items.map((item) => item.gearId));
   const form = useForm<CartCheckoutFormValues>({
     resolver: zodResolver(cartCheckoutSchema),
     defaultValues: { startDate: "", endDate: "" },
   });
+  const startDate = useWatch({ control: form.control, name: "startDate" });
 
   const selectedItems = items.filter((item) => selectedGearIds.includes(item.gearId));
   const selectedTotal = selectedItems.reduce((sum, item) => sum + Number(item.pricePerDay) * item.quantity, 0);
@@ -122,8 +125,8 @@ export function CartPageContent() {
 
           <Card className="h-fit space-y-4 p-5">
             <h2 className="text-xl font-black">Place Order</h2>
-            <Input type="date" min={new Date().toISOString().slice(0, 10)} {...form.register("startDate")} />
-            <Input type="date" min={new Date().toISOString().slice(0, 10)} {...form.register("endDate")} />
+            <Input type="date" min={today} {...form.register("startDate")} />
+            <Input type="date" min={startDate || today} {...form.register("endDate")} />
             <div className="text-sm font-semibold text-red-700">{Object.values(form.formState.errors)[0]?.message}</div>
             {cannotCreateRental ? (
               <p className="text-sm font-semibold text-amber-700">Only customers can place rental orders.</p>

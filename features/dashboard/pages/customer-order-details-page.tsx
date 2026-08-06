@@ -1,12 +1,25 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useCustomerRental } from "@/features/rental/hooks/use-rentals";
+import { useCancelRentalItem, useCustomerRental } from "@/features/rental/hooks/use-rentals";
+import { useToastStore } from "@/stores/toast.store";
 import { OrderDetailsCard } from "../components/order-details-card";
 
 export default function CustomerOrderDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const { data: order, isLoading, error } = useCustomerRental(id);
+  const cancelRentalItem = useCancelRentalItem();
+  const showToast = useToastStore((state) => state.showToast);
+
+  function handleCancelItem(itemId: string) {
+    const confirmed = window.confirm("Cancel this rental item?");
+    if (!confirmed) return;
+
+    cancelRentalItem.mutate(itemId, {
+      onSuccess: () => showToast({ title: "Order item cancelled", variant: "success" }),
+      onError: (cancelError) => showToast({ title: "Could not cancel item", description: cancelError.message, variant: "error" }),
+    });
+  }
 
   if (isLoading) {
     return (
@@ -30,7 +43,8 @@ export default function CustomerOrderDetailsPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-      <OrderDetailsCard order={order} />
+      {cancelRentalItem.error ? <div className="panel mb-5 p-4 text-sm font-semibold text-red-700">{cancelRentalItem.error.message}</div> : null}
+      <OrderDetailsCard order={order} onCancelItem={handleCancelItem} isCancellingItem={cancelRentalItem.isPending} />
     </main>
   );
 }

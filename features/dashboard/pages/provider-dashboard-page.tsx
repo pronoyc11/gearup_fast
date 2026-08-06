@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useGears } from "@/features/gear/hooks/use-gears";
 import { useProviderRentals } from "@/features/rental/hooks/use-rentals";
+import { filterProviderRentalItems } from "@/features/rental/utils/provider-rental-filter";
 import { toArray } from "@/shared/api/response";
 import { useAuthStore } from "@/stores/auth.store";
 import { ProviderInventoryManager } from "../components/provider-inventory-manager";
@@ -15,7 +16,7 @@ export default function ProviderDashboardPage() {
   const { data: gear } = useGears({ limit: 100 });
   const { data: rentals } = useProviderRentals();
   const gears = toArray(gear).filter((item) => item.providerId === user?.id || item.provider?.id === user?.id);
-  const rentalItems = toArray(rentals);
+  const rentalItems = filterProviderRentalItems(toArray(rentals), user?.id);
 
   return (
     <main className="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6">

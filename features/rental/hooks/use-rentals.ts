@@ -33,7 +33,22 @@ export function useCancelRental() {
 
   return useMutation({
     mutationFn: rentalApi.cancelRental,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["customer-rentals"] }),
+    onSuccess: (order) => {
+      queryClient.invalidateQueries({ queryKey: ["customer-rentals"] });
+      queryClient.invalidateQueries({ queryKey: ["customer-rental", order.id] });
+    },
+  });
+}
+
+export function useCancelRentalItem() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: rentalApi.cancelRentalItem,
+    onSuccess: (order) => {
+      queryClient.invalidateQueries({ queryKey: ["customer-rentals"] });
+      queryClient.invalidateQueries({ queryKey: ["customer-rental", order.id] });
+    },
   });
 }
 
