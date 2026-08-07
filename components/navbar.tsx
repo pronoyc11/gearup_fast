@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useQueryClient } from "@tanstack/react-query";
 import { Bike, LayoutDashboard, LogIn, LogOut, Menu, ShoppingCart, UserRound, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -11,6 +12,7 @@ import { useCartStore } from "@/stores/cart.store";
 
 export function Navbar() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
@@ -19,8 +21,10 @@ export function Navbar() {
 
   function handleLogout() {
     logout();
+    queryClient.clear();
     setIsMenuOpen(false);
-    router.push("/");
+    router.replace("/");
+    router.refresh();
   }
 
   function closeMenu() {
@@ -56,8 +60,8 @@ export function Navbar() {
             </>
           ) : (
             <>
-              <Button asChild variant="ghost"><Link href="/auth/register"><UserRound size={16} /> Register</Link></Button>
-              <Button asChild><Link href="/auth/login"><LogIn size={16} /> Login</Link></Button>
+              <Button asChild variant="ghost"><Link href="/auth/register" prefetch={false}><UserRound size={16} /> Register</Link></Button>
+              <Button asChild><Link href="/auth/login" prefetch={false}><LogIn size={16} /> Login</Link></Button>
             </>
           )}
         </nav>
@@ -106,10 +110,10 @@ export function Navbar() {
             ) : (
               <>
                 <Button asChild variant="ghost" className="justify-start">
-                  <Link href="/auth/register" onClick={closeMenu}><UserRound size={16} /> Register</Link>
+                  <Link href="/auth/register" prefetch={false} onClick={closeMenu}><UserRound size={16} /> Register</Link>
                 </Button>
                 <Button asChild className="justify-start">
-                  <Link href="/auth/login" onClick={closeMenu}><LogIn size={16} /> Login</Link>
+                  <Link href="/auth/login" prefetch={false} onClick={closeMenu}><LogIn size={16} /> Login</Link>
                 </Button>
               </>
             )}

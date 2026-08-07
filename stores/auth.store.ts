@@ -21,8 +21,8 @@ function setAuthCookies(accessToken: string, role: Role) {
 }
 
 function clearAuthCookies() {
-  document.cookie = "gearup_token=; path=/; max-age=0";
-  document.cookie = "gearup_role=; path=/; max-age=0";
+  document.cookie = "gearup_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
+  document.cookie = "gearup_role=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
